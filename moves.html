@@ -1,0 +1,441 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>홈트 동작 가이드 · 초보자용 그림 설명 15가지</title>
+<style>
+  :root{
+    color-scheme:dark;
+    --bg:#131311; --card:#1B1B18; --ink:#F2F0EB; --muted:#A29C92; --line:#2F2E2A;
+    --accent:#F0834F; --a:#E5A05A; --b:#6FA8EA; --c:#EE7F95;
+    --bad:#F08080; --ok:#5FCE86;
+  }
+  *{box-sizing:border-box}
+  html,body{background:var(--bg)}
+  body{margin:0;background:var(--bg);color:var(--ink);line-height:1.62;-webkit-font-smoothing:antialiased;
+    font-family:"Pretendard","Pretendard Variable",-apple-system,BlinkMacSystemFont,"Apple SD Gothic Neo","Malgun Gothic","Noto Sans KR",sans-serif;}
+  .wrap{max-width:900px;margin:0 auto;padding:32px 20px 80px}
+  .eyebrow{font-size:12px;letter-spacing:.14em;text-transform:uppercase;color:var(--accent);font-weight:700}
+  h1{font-size:29px;line-height:1.28;margin:8px 0 10px;letter-spacing:-.02em}
+  .lede{color:var(--muted);font-size:15px;margin:0}
+  h2{font-size:19px;margin:0 0 4px;letter-spacing:-.01em}
+  .sub{color:var(--muted);font-size:13.5px;margin:0 0 16px}
+  section{margin-top:32px}
+  /* basics */
+  .basics{display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:10px}
+  .bs{background:var(--card);border:1px solid var(--line);border-radius:12px;padding:14px}
+  .bs .n{font-size:11px;font-weight:800;letter-spacing:.08em;color:var(--accent)}
+  .bs h4{margin:3px 0 4px;font-size:14.5px}
+  .bs p{margin:0;font-size:13px;color:var(--muted)}
+  /* filter */
+  .filters{display:flex;gap:7px;flex-wrap:wrap;position:sticky;top:0;background:var(--bg);padding:12px 0;z-index:5;border-bottom:1px solid var(--line);margin-bottom:4px}
+  .f{font:inherit;font-size:13.5px;font-weight:650;padding:7px 15px;border-radius:99px;border:1px solid var(--line);background:#1B1B18;cursor:pointer;color:var(--muted);transition:.15s}
+  .f:hover{border-color:#4A473F}
+  .f[aria-pressed="true"]{background:var(--ink);border-color:var(--ink);color:#1B1B18}
+  /* card */
+  .exc{background:var(--card);border:1px solid var(--line);border-radius:16px;padding:20px;margin-top:14px}
+  .hd{display:flex;gap:11px;align-items:flex-start;flex-wrap:wrap}
+  .num{width:29px;height:29px;flex:0 0 auto;border-radius:9px;display:grid;place-items:center;font-size:13.5px;font-weight:800;color:#1B1B18}
+  .hd .t{flex:1;min-width:180px}
+  .hd h3{margin:0;font-size:18px;letter-spacing:-.01em}
+  .hd .meta{font-size:13px;color:var(--muted);margin-top:1px}
+  .sets{font-size:13.5px;font-weight:700;white-space:nowrap}
+  .tags{display:flex;gap:6px;flex-wrap:wrap;margin-top:9px}
+  .tg{font-size:11px;font-weight:700;padding:3px 9px;border-radius:99px;background:#262521;color:#B8B2A8}
+  .tg.new{background:#33291A;color:#E5A05A}
+  .tg.keep{background:#18291F;color:#6FCB92}
+  /* frames */
+  .fwrap{margin:15px 0 4px;border:1px solid var(--line);border-radius:12px;background:#1F1F1C;padding:12px}
+  .frames{display:grid;grid-template-columns:repeat(auto-fit,minmax(186px,1fr));gap:10px}
+  .frames[data-n="4"]{grid-template-columns:repeat(2,1fr)}
+  .fr{background:#1B1B18;border:1px solid var(--line);border-radius:10px;padding:6px 6px 9px;text-align:center}
+  .fr.bad{border-color:#4A3330;background:#241A1A}
+  .fr svg{width:100%;height:auto;display:block}
+  .fr .cap{font-size:12.5px;font-weight:650;margin-top:2px}
+  .fr.bad .cap{color:var(--bad)}
+  .frames.playing .fr{display:none}
+  .frames.playing .fr.on{display:block;grid-column:1/-1;max-width:280px;margin:0 auto}
+  .playrow{display:flex;justify-content:space-between;align-items:center;margin-top:9px;gap:10px;flex-wrap:wrap}
+  .play{font:inherit;font-size:12.5px;font-weight:650;padding:6px 13px;border-radius:8px;border:1px solid var(--line);background:#1B1B18;cursor:pointer;color:var(--muted)}
+  .play:hover{border-color:#4A473F}
+  .viewnote{font-size:12px;color:#7A746B}
+  /* steps */
+  ol.steps{margin:14px 0 0;padding-left:0;list-style:none;counter-reset:s}
+  ol.steps li{counter-increment:s;position:relative;padding-left:29px;font-size:14px;margin-bottom:7px}
+  ol.steps li::before{content:counter(s);position:absolute;left:0;top:2px;width:20px;height:20px;border-radius:6px;
+    background:#262521;color:#B8B2A8;font-size:11.5px;font-weight:800;display:grid;place-items:center}
+  .box{border-radius:10px;padding:11px 13px;font-size:13.5px;margin-top:11px}
+  .box b{font-weight:750}
+  .box.key{background:#26201C;border-left:3px solid var(--accent)}
+  .box.key>b:first-child{color:var(--accent)}
+  .box.err{background:#1F1E1B;border-left:3px solid #45433D;color:#A29C92}
+  .box.easy{background:#17251C;border-left:3px solid var(--ok)}
+  .box.easy>b:first-child{color:var(--ok)}
+  /* svg figure */
+  .gr{stroke:#3E3B35;stroke-width:2;stroke-linecap:round}
+  .ln{fill:none;stroke:#E6E3DC;stroke-width:5.5;stroke-linecap:round;stroke-linejoin:round}
+  .lb{fill:none;stroke:#6A655D;stroke-width:5.5;stroke-linecap:round;stroke-linejoin:round}
+  .hd2{fill:#1B1B18;stroke:#E6E3DC;stroke-width:5}
+  .eq{fill:#F0834F}
+  .ar{fill:none;stroke:#F0834F;stroke-width:3;stroke-linecap:round;marker-end:url(#ah)}
+  .obj{fill:#262521;stroke:#45433D;stroke-width:2.5}
+  .bad .ln{stroke:#F08080} .bad .hd2{stroke:#F08080} .bad .lb{stroke:#8A5450}
+  footer{margin-top:44px;padding-top:18px;border-top:1px solid var(--line);font-size:12.5px;color:#7A746B}
+  @media(max-width:640px){h1{font-size:24px}.exc{padding:16px}}
+</style>
+</head>
+<body>
+<div class="wrap">
+
+<header>
+  <div class="eyebrow">초보자용 · 동작 그림 설명 15가지</div>
+  <h1>동작 하나씩, 그림 보고 그대로 따라 하기</h1>
+  <p class="lede">A·B·C 세션에 나오는 모든 동작입니다. <b>흐린 회색 팔·다리는 반대쪽</b>, 밝은 흰색이 앞쪽이에요. 주황색 화살표는 움직이는 방향입니다.</p>
+</header>
+
+<section>
+  <h2>시작 전 딱 4가지</h2>
+  <p class="sub">이것만 지키면 초보자가 다치는 경우의 대부분을 피할 수 있어요.</p>
+  <div class="basics">
+    <div class="bs"><div class="n">호흡</div><h4>힘줄 때 내쉬기</h4><p>내려갈 때(늘어날 때) 마시고, <b>밀거나 당길 때 후— 내쉽니다.</b> 숨을 참으면 어지러워요.</p></div>
+    <div class="bs"><div class="n">속도</div><h4>내릴 때 3초, 올릴 때 1초</h4><p>초보자가 가장 많이 놓치는 부분. 반동으로 하면 근육이 아니라 관절이 일합니다.</p></div>
+    <div class="bs"><div class="n">강도</div><h4>2~3회 더 남기고 멈추기</h4><p>죽을 만큼 안 해도 됩니다. "더 할 수 있을 것 같은데?" 지점에서 끝내는 게 오래 갑니다.</p></div>
+    <div class="bs"><div class="n">통증</div><h4>근육 아픔 O, 관절 찌름 X</h4><p>근육이 타는 느낌은 정상. <b>관절에서 콕 찌르는 통증</b>은 즉시 중단 신호예요.</p></div>
+  </div>
+</section>
+
+<section>
+  <div class="filters" id="filters">
+    <button class="f" data-s="all" aria-pressed="true">전체 15개</button>
+    <button class="f" data-s="A" aria-pressed="false">A · 하체·엉덩이</button>
+    <button class="f" data-s="B" aria-pressed="false">B · 밀기·당기기</button>
+    <button class="f" data-s="C" aria-pressed="false">C · 유산소 서킷</button>
+  </div>
+  <div id="list"></div>
+</section>
+
+<footer>
+  그림은 동작의 <b>핵심 각도</b>만 단순화한 도식입니다. 거울이나 휴대폰 카메라로 옆모습을 한 번 찍어 비교해보시면 훨씬 빨리 교정돼요.
+  관절에 찌르는 통증, 어지럼증, 가슴 답답함이 있으면 즉시 멈추세요. 통증이 반복되면 의사·물리치료사와 상의하시는 편이 좋습니다.
+</footer>
+</div>
+
+<svg width="0" height="0" style="position:absolute"><defs>
+  <marker id="ah" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="5" markerHeight="5" orient="auto-start-reverse">
+    <path d="M0,1 L9,5 L0,9 z" fill="#F0834F"/></marker>
+</defs></svg>
+
+<script>
+/* ---------- figure renderer ---------- */
+function pl(pts,cls){ return '<polyline points="'+pts.map(p=>p[0]+','+p[1]).join(' ')+'" class="'+cls+'"/>'; }
+function dbl(x,y,horiz){
+  const r = horiz? ' rotate(90)':'';
+  return '<g transform="translate('+x+','+y+')'+r+'">'
+   +'<rect x="-2.2" y="-7" width="4.4" height="14" rx="1.5" class="eq"/>'
+   +'<rect x="-6.5" y="-10" width="13" height="5.5" rx="2.2" class="eq"/>'
+   +'<rect x="-6.5" y="4.5" width="13" height="5.5" rx="2.2" class="eq"/></g>';
+}
+function arw(x1,y1,x2,y2,curve){
+  if(curve){ const mx=(x1+x2)/2+curve, my=(y1+y2)/2;
+    return '<path d="M'+x1+','+y1+' Q'+mx+','+my+' '+x2+','+y2+'" class="ar"/>'; }
+  return '<line x1="'+x1+'" y1="'+y1+'" x2="'+x2+'" y2="'+y2+'" class="ar"/>';
+}
+function figure(f){
+  let s='';
+  if(f.ground!==false) s+='<line x1="12" y1="146" x2="228" y2="146" class="gr"/>';
+  if(f.obj) s+=f.obj;
+  if(f.aB) s+=pl([f.n].concat(f.aB),'lb');
+  if(f.lB) s+=pl([f.p].concat(f.lB),'lb');
+  s+=pl([f.n,f.p],'ln');
+  s+=pl([f.h,f.n],'ln');
+  s+='<circle cx="'+f.h[0]+'" cy="'+f.h[1]+'" r="'+(f.r||10)+'" class="hd2"/>';
+  if(f.aF) s+=pl([f.n].concat(f.aF),'ln');
+  if(f.lF) s+=pl([f.p].concat(f.lF),'ln');
+  if(f.eq) s+=f.eq;
+  if(f.ar) s+=f.ar;
+  return '<svg viewBox="0 0 240 160" role="img" aria-label="'+(f.cap||'')+'">'+s+'</svg>';
+}
+
+/* ---------- data ---------- */
+const CH = '<rect x="150" y="116" width="40" height="4" rx="2" class="obj"/><rect x="152" y="120" width="5" height="26" class="obj"/><rect x="183" y="120" width="5" height="26" class="obj"/>';
+
+const EX=[
+/* ============ A ============ */
+{s:'A',name:'고블릿 스쿼트',sub:'덤벨 5kg 1개를 가슴 앞에',sets:'3세트 × 12~15회',tag:'변형',
+ steps:['덤벨을 세워서 두 손으로 감싸 쥐고 <b>가슴 앞</b>에 붙입니다.','발은 어깨너비, 발끝은 살짝 바깥쪽으로.','숨을 마시며 <b>3초</b>에 걸쳐 앉습니다. 무릎을 앞으로 내밀지 말고 <b>엉덩이를 뒤로</b> 빼며 의자에 앉듯이.','허벅지가 바닥과 나란해지면, 발바닥 전체로 바닥을 밀며 숨을 내쉬고 1초에 일어납니다.'],
+ key:'무릎이 <b>발끝과 같은 방향</b>을 봐야 합니다. 무릎이 안쪽으로 모이면 덤벨을 내려놓고 맨몸부터 하세요.',
+ err:'뒤꿈치가 뜨는 것. 발목이 뻣뻣하다는 신호라 못하는 게 아니에요 — 뒤꿈치 아래에 얇은 책을 받치면 바로 됩니다.',
+ easy:'덤벨 없이 맨몸 스쿼트부터. 그것도 힘들면 <b>의자에 앉았다 일어나기</b>를 12회 반복하세요. 똑같은 운동입니다.',
+ frames:[
+  {cap:'① 시작 — 서서 가슴 앞에',h:[110,34],n:[110,50],p:[110,86],
+   aF:[[98,70],[118,62]],aB:[[102,72],[122,64]],
+   lF:[[112,114],[112,140],[126,142]],lB:[[108,114],[108,140],[120,142]],
+   eq:dbl(124,60),ar:arw(150,60,150,104)},
+  {cap:'② 끝 — 허벅지가 바닥과 나란',h:[116,62],n:[108,78],p:[98,112],
+   aF:[[100,94],[118,90]],aB:[[104,96],[120,92]],
+   lF:[[128,116],[118,140],[132,142]],lB:[[124,116],[114,140],[128,142]],
+   eq:dbl(124,86),ar:arw(60,116,60,74)}]},
+
+{s:'A',name:'리버스 런지',sub:'뒤로 내딛기 · 덤벨은 한 손에',sets:'3세트 × 좌우 8~10회',tag:'추가',
+ steps:['바로 서서 배에 살짝 힘을 줍니다.','한 발을 <b>뒤로</b> 크게 내딛습니다. 앞으로 내딛는 것보다 무릎 부담이 적고 소리도 덜 나요.','뒤쪽 무릎이 바닥에 <b>닿기 직전</b>까지 천천히 내려갑니다. 앞 무릎은 90도.','앞발 뒤꿈치로 바닥을 밀며 제자리로. 한쪽 다 하고 반대쪽.'],
+ key:'상체는 <b>계속 수직</b>으로 세워두세요. 앞으로 숙이면 무릎에 부담이 몰립니다.',
+ err:'뒤로 내딛을 때 휘청거리는 것. 정상이에요 — 처음엔 벽이나 의자를 한 손으로 짚고 하세요.',
+ easy:'덤벨 없이, 보폭을 절반으로 줄여서. 익숙해지면 보폭을 늘리고 그다음 덤벨을 듭니다.',
+ frames:[
+  {cap:'① 시작 — 바로 서기',h:[110,34],n:[110,50],p:[110,86],
+   aF:[[118,72],[122,96]],aB:[[104,72],[102,96]],
+   lF:[[112,114],[112,140],[126,142]],lB:[[108,114],[108,140],[120,142]],
+   eq:dbl(124,103),ar:arw(96,122,62,140)},
+  {cap:'② 끝 — 뒤 무릎이 바닥 가까이',h:[110,40],n:[110,58],p:[110,96],
+   aF:[[112,80],[114,104]],aB:[[106,80],[104,104]],
+   lF:[[132,116],[132,140],[146,142]],lB:[[86,130],[74,140],[64,142]],
+   eq:dbl(116,110)}]},
+
+{s:'A',name:'싱글레그 힙 브리지',sub:'한 다리로 엉덩이 들기 · 맨몸',sets:'3세트 × 좌우 10~12회',tag:'추가',
+ steps:['바닥에 누워 무릎을 세우고, 발은 엉덩이에서 주먹 두 개 거리에 둡니다.','한쪽 다리를 <b>들어 올려</b> 앞으로 뻗습니다.','바닥을 딛고 있는 발 <b>뒤꿈치</b>로 밀며 엉덩이를 들어 올립니다.','맨 위에서 <b>2초 멈추고</b> 엉덩이를 꽉 조인 뒤 천천히 내립니다.'],
+ key:'어깨–엉덩이–무릎이 <b>일직선</b>이 되는 높이까지만. 더 올리면 허리가 꺾입니다.',
+ err:'허벅지 뒤(햄스트링)에 쥐가 나는 것. 엉덩이가 아니라 다리로 밀고 있다는 뜻이에요 — 발을 엉덩이 쪽으로 조금 더 당겨보세요.',
+ easy:'두 발 다 딛고 하는 일반 힙 브리지부터. 15회가 쉬워지면 한 다리로 넘어갑니다.',
+ frames:[
+  {cap:'① 시작 — 한 다리 들고 엉덩이는 바닥',h:[54,126],n:[74,132],p:[120,138],
+   aF:[[92,140],[110,143]],
+   lF:[[150,116],[152,142],[166,144]],lB:[[150,124],[180,110]],
+   ar:arw(120,124,120,104)},
+  {cap:'② 끝 — 어깨·엉덩이·무릎이 일직선',h:[54,126],n:[74,132],p:[120,110],
+   aF:[[92,140],[110,143]],
+   lF:[[150,114],[152,142],[166,144]],lB:[[150,100],[180,88]]}]},
+
+{s:'A',name:'데드버그',sub:'허리를 지키는 코어 운동 · 맨몸',sets:'2세트 × 좌우 8회',tag:'추가',
+ steps:['누워서 두 팔은 <b>천장을 향해</b> 곧게, 무릎은 90도로 들어 올립니다.','<b>허리를 바닥에 꾹 붙입니다.</b> 손이 안 들어갈 정도로. 이게 이 운동의 전부예요.','오른팔은 머리 뒤로, <b>왼다리</b>는 앞으로 — 대각선으로 천천히 뻗습니다.','허리가 바닥에서 뜨기 직전까지만 뻗고 돌아옵니다. 반대쪽 반복.'],
+ key:'팔다리를 얼마나 멀리 뻗느냐는 중요하지 않아요. <b>허리가 뜨지 않는 범위</b>가 지금의 정답입니다.',
+ err:'허리가 들뜬 채로 팔다리만 크게 움직이는 것. 그러면 코어가 아니라 허리로 버티게 됩니다.',
+ easy:'팔은 가만두고 <b>다리만</b> 번갈아 뻗기. 그것도 어려우면 발끝만 바닥에 톡 찍었다 돌아오세요.',
+ frames:[
+  {cap:'① 시작 — 팔은 천장, 무릎은 90도',h:[58,124],n:[78,130],p:[124,136],
+   aF:[[80,112],[82,94]],aB:[[75,112],[73,94]],
+   lF:[[126,108],[152,106]],lB:[[122,110],[148,108]]},
+  {cap:'② 반대쪽 팔·다리만 대각선으로',h:[58,124],n:[78,130],p:[124,136],
+   aF:[[62,116],[44,110]],aB:[[75,112],[73,94]],
+   lF:[[126,108],[152,106]],lB:[[142,124],[174,134]],
+   ar:arw(96,100,66,96)}]},
+
+/* ============ B ============ */
+{s:'B',name:'푸시업 — 난이도 올린 버전',sub:'일반 푸시업 30회가 되면 이걸로',sets:'3세트 × 10~15회',tag:'변형',
+ steps:['손은 <b>어깨보다 살짝 넓게</b>, 손가락은 앞을 향하게 짚습니다.','머리–엉덩이–발뒤꿈치가 일직선. 엉덩이가 솟거나 처지지 않게.','팔꿈치를 <b>몸통에서 45도</b>로 벌리며 4초에 걸쳐 내려갑니다. (90도로 활짝 벌리면 어깨가 상해요)','가슴이 주먹 하나 높이까지 오면 1초에 밀어 올립니다.'],
+ key:'셋 중 하나를 고르세요 — ① <b>디클라인</b>: 발을 의자에 올리기 ② <b>다이아몬드</b>: 두 손을 모아 삼각형 ③ <b>템포</b>: 내려갈 때 4초 + 바닥 1cm에서 1초 정지. 30회 되던 사람도 10회에서 힘들어집니다.',
+ err:'허리가 아래로 처지는 것. 배와 엉덩이에 힘을 주면 사라집니다. 세트 후반에 처지기 시작하면 거기서 끝내세요.',
+ easy:'해당 없음 — 이미 30회가 되시니 위 세 변형 중 하나로 바로 가시면 됩니다.',
+ frames:[
+  {cap:'① 시작 — 팔 편 일직선',h:[176,96],n:[158,104],p:[106,120],
+   aF:[[164,122],[168,143]],aB:[[159,123],[163,144]],
+   lF:[[76,132],[50,143],[42,140]],lB:[[73,134],[47,145]],
+   ar:arw(120,100,120,80)},
+  {cap:'② 끝 — 가슴이 주먹 하나 높이',h:[178,114],n:[160,122],p:[108,132],
+   aF:[[178,134],[168,143]],aB:[[174,136],[163,144]],
+   lF:[[78,138],[50,144],[42,141]],lB:[[75,140],[47,145]],
+   ar:arw(120,116,120,96)}]},
+
+{s:'B',name:'덤벨 원암 로우',sub:'덤벨 5kg · 의자에 한 손 짚고',sets:'3세트 × 좌우 12~15회',tag:'추가',
+ steps:['의자 좌석에 <b>한 손을 짚고</b> 상체를 바닥과 나란해질 때까지 숙입니다. 등은 평평하게.','반대 손에 덤벨을 들고 팔을 아래로 늘어뜨립니다.','팔로 당기지 말고 <b>날개뼈를 뒷주머니 쪽으로 끌어내린다</b>는 느낌으로 팔꿈치를 천장으로 올립니다.','맨 위에서 <b>2초 멈추고</b>, 3초에 걸쳐 천천히 내립니다.'],
+ key:'5kg은 가벼우니 <b>정지 2초 + 내릴 때 3초</b>가 무게를 대신합니다. 이게 이 운동에서 제일 중요해요.',
+ err:'몸통이 같이 돌아가는 것. 덤벨은 올라가지만 등은 안 씁니다. 어깨선을 바닥과 나란히 고정하세요.',
+ easy:'무게 없이 빈손으로 <b>날개뼈만 모았다 펴는</b> 연습을 10회. 등에 힘이 들어가는 감각부터 찾는 게 먼저예요.',
+ frames:[
+  {cap:'① 시작 — 팔을 아래로 늘어뜨리기',h:[154,78],n:[136,84],p:[80,88],obj:CH,
+   aB:[[147,97],[153,116]],aF:[[132,104],[130,126]],
+   lF:[[78,114],[80,142],[94,144]],lB:[[74,116],[76,142]],
+   eq:dbl(130,133,true),ar:arw(104,120,104,88)},
+  {cap:'② 끝 — 팔꿈치를 천장 쪽으로',h:[154,78],n:[136,84],p:[80,88],obj:CH,
+   aB:[[147,97],[153,116]],aF:[[116,70],[130,98]],
+   lF:[[78,114],[80,142],[94,144]],lB:[[74,116],[76,142]],
+   eq:dbl(130,105,true)}]},
+
+{s:'B',name:'프론 Y-T-W',sub:'엎드려 팔 들기 · 무게 없음',sets:'2세트 × 각 8회',tag:'추가',
+ view:'위에서 내려다본 모습',
+ steps:['바닥에 엎드려 이마를 살짝 바닥에서 뗍니다.','<b>Y</b> — 두 팔을 만세하듯 대각선 위로 들어 올립니다. 엄지는 천장을 향하게. 8회.','<b>T</b> — 팔을 양옆으로 곧게 벌린 채 들어 올립니다. 8회.','<b>W</b> — 팔꿈치를 90도로 굽혀 옆구리 쪽으로 당기며 들어 올립니다. 8회.'],
+ key:'팔을 얼마나 높이 드느냐가 아니라 <b>날개뼈 사이가 조여지는 느낌</b>이 나야 합니다. 목에 힘이 들어가면 잘못하고 있는 거예요.',
+ err:'반동으로 팔을 튕기듯 드는 것. 1초에 들고 2초에 내리세요. 몇 cm만 들려도 충분합니다.',
+ easy:'바닥이 힘들면 <b>벽에 등을 대고 서서</b> 같은 동작을 하세요. 팔이 벽에서 떨어지지 않게 유지하는 게 포인트입니다.',
+ frames:[
+  {cap:'Y — 대각선 위로',ground:false,h:[120,28],n:[120,48],p:[120,98],
+   aF:[[146,34],[164,18]],aB:[[94,34],[76,18]],
+   lF:[[128,122],[132,148]],lB:[[112,122],[108,148]]},
+  {cap:'T — 양옆으로',ground:false,h:[120,28],n:[120,48],p:[120,98],
+   aF:[[148,50],[172,52]],aB:[[92,50],[68,52]],
+   lF:[[128,122],[132,148]],lB:[[112,122],[108,148]]},
+  {cap:'W — 팔꿈치 90도',ground:false,h:[120,28],n:[120,48],p:[120,98],
+   aF:[[152,66],[162,40]],aB:[[88,66],[78,40]],
+   lF:[[128,122],[132,148]],lB:[[112,122],[108,148]]}]},
+
+{s:'B',name:'덤벨 컬',sub:'덤벨 5kg · 한쪽씩',sets:'2세트 × 좌우 12~15회',tag:'유지',
+ steps:['바로 서서 덤벨을 한 손에 듭니다. 손바닥은 앞을 향하게.','<b>팔꿈치를 옆구리에 붙여 고정</b>합니다. 여기서부터 팔꿈치는 움직이지 않아요.','1초에 감아올리고, 맨 위에서 이두근을 꽉 짭니다.','<b>3초에 걸쳐</b> 천천히 내립니다. 내리는 구간이 진짜 운동이에요.'],
+ key:'팔꿈치가 앞뒤로 흔들리면 어깨가 대신 일합니다. 옆구리에 <b>접은 수건을 끼우고</b> 하면 강제로 고정됩니다.',
+ err:'반동으로 몸을 뒤로 젖히며 올리는 것. 그러면 허리가 일합니다. 못 들 정도면 횟수를 줄이세요.',
+ easy:'앉아서 하면 반동을 못 쓰니 자세가 저절로 잡힙니다.',
+ frames:[
+  {cap:'① 시작 — 팔을 아래로',h:[110,34],n:[110,50],p:[110,86],
+   aF:[[113,74],[115,98]],aB:[[106,74],[105,98]],
+   lF:[[112,114],[112,140],[126,142]],lB:[[108,114],[108,140],[120,142]],
+   eq:dbl(117,105),ar:arw(146,100,146,62,10)},
+  {cap:'② 끝 — 이두근을 꽉',h:[110,34],n:[110,50],p:[110,86],
+   aF:[[113,74],[129,58]],aB:[[106,74],[105,98]],
+   lF:[[112,114],[112,140],[126,142]],lB:[[108,114],[108,140],[120,142]],
+   eq:dbl(133,52)}]},
+
+{s:'B',name:'플랭크',sub:'팔꿈치 대고 버티기 · 맨몸',sets:'2세트 × 45~60초',tag:'추가',
+ steps:['팔꿈치를 <b>어깨 바로 아래</b>에 놓고 엎드립니다.','발끝으로 몸을 들어 올려 머리–엉덩이–발뒤꿈치를 일직선으로.','<b>배꼽을 척추 쪽으로 당기고</b> 엉덩이를 조입니다. 그냥 버티는 게 아니라 계속 힘을 주고 있어야 해요.','호흡은 멈추지 말고 얕게 계속 쉽니다.'],
+ key:'시간을 늘리는 것보다 <b>자세가 무너지기 직전에 끝내는 것</b>이 낫습니다. 30초 정자세 > 60초 엉망.',
+ err:'엉덩이가 위로 솟는 것(오른쪽 그림). 편해지니까 저절로 그렇게 돼요. 거울이나 휴대폰으로 옆모습을 확인해보세요.',
+ easy:'무릎을 바닥에 대고 같은 시간을 채우세요. 강도만 낮아질 뿐 똑같이 유효합니다.',
+ frames:[
+  {cap:'① 올바른 자세 — 일직선',h:[168,110],n:[150,118],p:[96,130],
+   aF:[[148,143],[184,143]],aB:[[145,145],[181,145]],
+   lF:[[66,137],[38,144],[30,141]],lB:[[63,139],[35,145]]},
+  {cap:'✗ 흔한 실수 — 엉덩이가 솟음',bad:true,h:[168,124],n:[150,131],p:[96,96],
+   aF:[[148,143],[184,143]],aB:[[145,145],[181,145]],
+   lF:[[68,124],[38,144],[30,141]],lB:[[65,126],[35,145]]}]},
+
+/* ============ C ============ */
+{s:'C',name:'스텝 잭',sub:'팔벌려뛰기의 무소음 버전',sets:'30초',tag:'대체',
+ view:'앞에서 본 모습',
+ steps:['발을 모으고 서서 팔은 옆에 둡니다.','<b>뛰지 말고</b> 한 발만 옆으로 미끄러뜨리듯 내딛으면서, 동시에 두 팔을 머리 위로 올립니다.','발을 제자리로 모으며 팔도 내립니다.','반대쪽 발로 반복. 좌우 번갈아 계속.'],
+ key:'두 발이 <b>동시에 바닥에서 떨어지지 않는 것</b>이 핵심입니다. 이것만 지키면 아래층에 충격이 거의 안 갑니다.',
+ err:'속도를 내려다 자기도 모르게 살짝 뛰는 것. 속도 대신 <b>팔을 크게</b> 쓰면 심박수는 똑같이 올라갑니다.',
+ easy:'팔만 크게 올렸다 내리면서 제자리 걷기로 시작하세요.',
+ frames:[
+  {cap:'① 시작 — 발 모으고 팔은 옆에',h:[110,34],n:[110,52],p:[110,88],
+   aF:[[126,72],[130,96]],aB:[[94,72],[90,96]],
+   lF:[[118,114],[120,143]],lB:[[102,114],[100,143]]},
+  {cap:'② 한 발만 옆으로 + 팔은 위로',h:[110,34],n:[110,52],p:[110,88],
+   aF:[[132,32],[142,12]],aB:[[88,32],[78,12]],
+   lF:[[136,116],[154,143]],lB:[[102,114],[100,143]],
+   ar:arw(126,150,158,150)}]},
+
+{s:'C',name:'스쿼트 + 펀치',sub:'심박수가 가장 빨리 오르는 동작',sets:'30초',tag:'유지',
+ steps:['주먹을 가슴 앞에 두고 어깨너비로 섭니다.','스쿼트로 앉습니다. 깊이는 편한 만큼만.','일어나면서 동시에 <b>한 팔을 앞으로</b> 쭉 지릅니다.','다시 앉고, 일어나며 반대 팔. 좌우 번갈아 30초.'],
+ key:'주먹을 지를 때 <b>어깨가 따라 나가되 허리는 돌지 않게</b>. 팔만 뻗는다는 느낌으로.',
+ err:'지치면 스쿼트가 점점 얕아지는 것. 차라리 속도를 늦추고 깊이를 지키세요.',
+ easy:'펀치 없이 스쿼트만. 또는 앉는 깊이를 절반으로.',
+ frames:[
+  {cap:'① 앉으며 주먹은 가슴 앞',h:[116,62],n:[108,78],p:[98,112],
+   aF:[[98,96],[120,88]],aB:[[102,98],[124,92]],
+   lF:[[128,116],[118,140],[132,142]],lB:[[124,116],[114,140],[128,142]]},
+  {cap:'② 일어나며 한 팔 앞으로',h:[110,34],n:[110,50],p:[110,86],
+   aF:[[124,58],[150,56]],aB:[[104,66],[118,60]],
+   lF:[[112,114],[112,140],[126,142]],lB:[[108,114],[108,140],[120,142]],
+   ar:arw(158,56,182,56)}]},
+
+{s:'C',name:'마운틴 클라이머',sub:'천천히 · 손 짚는 자세라 조용함',sets:'30초',tag:'추가',
+ steps:['푸시업 시작 자세(팔 편 플랭크)를 만듭니다.','한쪽 <b>무릎을 가슴 쪽으로</b> 천천히 당깁니다.','발을 소리 없이 내려놓고 반대쪽 무릎을 당깁니다.','달리듯 빠르게 하지 말고, 한 번에 하나씩 정확하게 30초.'],
+ key:'무릎을 당길 때 <b>엉덩이가 위로 솟지 않게</b> 하세요. 어깨–엉덩이 높이를 그대로 유지하는 게 코어 운동이 되는 지점입니다.',
+ err:'빨리 하려다 발을 바닥에 쿵 내려놓는 것. 발은 <b>내려놓는다</b>가 아니라 <b>대어놓는다</b>는 느낌으로.',
+ easy:'벽이나 식탁에 손을 짚고 서서 하는 <b>인클라인 버전</b>. 각도가 서 있을수록 쉬워집니다.',
+ frames:[
+  {cap:'① 시작 — 팔 편 플랭크',h:[176,96],n:[158,104],p:[106,120],
+   aF:[[164,122],[168,143]],aB:[[159,123],[163,144]],
+   lF:[[76,132],[50,143],[42,140]],lB:[[73,134],[47,145]]},
+  {cap:'② 한쪽 무릎을 가슴 쪽으로',h:[176,96],n:[158,104],p:[106,120],
+   aF:[[164,122],[168,143]],aB:[[159,123],[163,144]],
+   lF:[[126,130],[148,138]],lB:[[73,134],[47,145]],
+   ar:arw(78,124,112,120)}]},
+
+{s:'C',name:'자전거 크런치',sub:'팔꿈치와 반대 무릎',sets:'30초',tag:'유지',
+ steps:['누워서 손을 <b>귀 옆에</b> 가볍게 댑니다. 깍지 껴서 목을 당기면 안 돼요.','한쪽 무릎을 가슴으로 당기고, 반대 다리는 앞으로 뻗습니다.','상체를 돌려 <b>반대쪽 팔꿈치</b>를 당겨온 무릎 쪽으로 가져갑니다.','천천히 좌우를 번갈아 30초. 자전거 페달 밟듯이.'],
+ key:'팔꿈치가 무릎에 <b>닿는 것보다 상체가 돌아가는 것</b>이 중요합니다. 어깨를 반대쪽으로 돌린다고 생각하세요.',
+ err:'손으로 목을 당겨서 머리만 움직이는 것. 다음 날 목이 아프면 이걸 하고 있었던 거예요. 손은 그냥 <b>얹어만</b> 두세요.',
+ easy:'다리를 뻗지 말고 <b>무릎 90도를 유지한 채</b> 상체만 좌우로 돌리세요.',
+ frames:[
+  {cap:'① 오른 팔꿈치 → 왼 무릎',h:[58,106],n:[82,120],p:[126,140],
+   aF:[[102,104],[76,100]],aB:[[94,114],[70,110]],
+   lF:[[104,112],[128,104]],lB:[[158,134],[188,142]]},
+  {cap:'② 반대로 — 왼 팔꿈치 → 오른 무릎',h:[58,106],n:[82,120],p:[126,140],
+   aF:[[102,104],[76,100]],aB:[[94,114],[70,110]],
+   lF:[[160,132],[190,140]],lB:[[106,114],[130,106]]}]},
+
+{s:'C',name:'슬로우 버피',sub:'점프 없이 · 발을 걸어서',sets:'30초',tag:'추가',
+ steps:['바로 섭니다.','쪼그려 앉아 <b>두 손을 바닥에 짚습니다.</b>','발을 <b>한 발씩 걸어서</b> 뒤로 보내 플랭크 자세를 만듭니다. (뛰어서 보내지 않기)','다시 한 발씩 걸어서 앞으로 가져오고, 손을 떼며 일어섭니다. 점프도 손뼉도 없어요.'],
+ key:'점프를 빼도 <b>전신이 다 동원되는 것</b>은 똑같습니다. 대신 속도가 느려지니 30초 동안 쉬지 않고 이어가세요.',
+ err:'허리를 굽혀 손을 짚는 것. 무릎을 굽혀 <b>쪼그려 앉으면서</b> 짚어야 허리에 부담이 없습니다.',
+ easy:'플랭크까지 가지 말고, 쪼그려 앉아 손 짚었다가 바로 일어서기만 반복하세요.',
+ frames:[
+  {cap:'① 서기',h:[110,34],n:[110,50],p:[110,86],
+   aF:[[112,72],[114,96]],aB:[[107,72],[106,96]],
+   lF:[[112,114],[112,140],[126,142]],lB:[[108,114],[108,140],[120,142]],
+   ar:arw(150,60,150,110)},
+  {cap:'② 쪼그려 손 짚기',h:[124,74],n:[112,88],p:[98,116],
+   aF:[[130,106],[144,143]],aB:[[126,108],[140,144]],
+   lF:[[126,120],[116,142],[130,144]],lB:[[122,122],[112,142]]},
+  {cap:'③ 발을 걸어서 뒤로 → 플랭크',h:[176,96],n:[158,104],p:[106,120],
+   aF:[[164,122],[168,143]],aB:[[159,123],[163,144]],
+   lF:[[76,132],[50,143],[42,140]],lB:[[73,134],[47,145]],
+   ar:arw(96,138,58,138)},
+  {cap:'④ 다시 앞으로 → 일어서기',h:[124,74],n:[112,88],p:[98,116],
+   aF:[[130,106],[144,143]],aB:[[126,108],[140,144]],
+   lF:[[126,120],[116,142],[130,144]],lB:[[122,122],[112,142]],
+   ar:arw(150,110,150,60)}]},
+
+{s:'C',name:'힙 브리지 마치',sub:'엉덩이 마무리 · 맨몸',sets:'30초',tag:'추가',
+ steps:['무릎을 세우고 누워 두 발로 <b>엉덩이를 들어 올립니다.</b>','어깨–엉덩이–무릎이 일직선인 높이에서 멈춥니다.','그 높이를 유지한 채 <b>한쪽 무릎만</b> 들어 올립니다. 제자리걸음하듯이.','발을 내려놓고 반대쪽. 좌우 번갈아 30초.'],
+ key:'무릎을 들 때 <b>엉덩이가 내려앉지 않는 것</b>이 전부입니다. 골반이 한쪽으로 기울지 않게 버티세요.',
+ err:'무릎을 드는 순간 엉덩이가 툭 떨어지는 것. 그러면 그냥 다리 들기가 돼요. 무릎을 조금만 들어도 됩니다.',
+ easy:'무릎을 들지 말고 <b>브리지 자세로 20초 버티기</b>부터. 엉덩이에 힘이 유지되는 감각을 먼저 익히세요.',
+ frames:[
+  {cap:'① 브리지 — 양발 바닥',h:[54,124],n:[74,130],p:[120,110],
+   aF:[[92,140],[110,143]],
+   lF:[[150,112],[152,142],[166,144]],lB:[[146,114],[148,142]]},
+  {cap:'② 높이 그대로 — 한쪽 무릎만 들기',h:[54,124],n:[74,130],p:[120,110],
+   aF:[[92,140],[110,143]],
+   lF:[[150,112],[152,142],[166,144]],lB:[[150,94],[160,118]],
+   ar:arw(176,112,176,90)}]},
+];
+
+/* ---------- render ---------- */
+const HEX={A:'#E5A05A',B:'#6FA8EA',C:'#EE7F95'};
+const SNAME={A:'A · 하체·엉덩이',B:'B · 밀기·당기기',C:'C · 유산소 서킷'};
+const TAGCLS={'유지':'keep','추가':'new','변형':'new','대체':'new'};
+
+document.getElementById('list').innerHTML = EX.map((e,i)=>`
+<article class="exc" data-s="${e.s}">
+  <div class="hd">
+    <div class="num" style="background:${HEX[e.s]}">${i+1}</div>
+    <div class="t"><h3>${e.name}</h3><div class="meta">${e.sub}</div></div>
+    <div class="sets" style="color:${HEX[e.s]}">${e.sets}</div>
+  </div>
+  <div class="tags"><span class="tg" style="background:${HEX[e.s]}18;color:${HEX[e.s]}">${SNAME[e.s]}</span><span class="tg ${TAGCLS[e.tag]||''}">${e.tag}</span></div>
+  <div class="fwrap">
+    <div class="frames" data-n="${e.frames.length}">
+      ${e.frames.map((f,j)=>`<div class="fr ${f.bad?'bad':''} ${j===0?'on':''}">${figure(f)}<div class="cap">${f.cap}</div></div>`).join('')}
+    </div>
+    <div class="playrow">
+      <button class="play">▶ 움직임 이어서 보기</button>
+      <span class="viewnote">${e.view?('* '+e.view):'* 옆에서 본 모습 · 회색은 반대쪽 팔·다리'}</span>
+    </div>
+  </div>
+  <ol class="steps">${e.steps.map(s=>`<li>${s}</li>`).join('')}</ol>
+  <div class="box key"><b>핵심 포인트</b> · ${e.key}</div>
+  <div class="box err"><b>흔한 실수</b> · ${e.err}</div>
+  <div class="box easy"><b>너무 힘들면</b> · ${e.easy}</div>
+</article>`).join('');
+
+document.querySelectorAll('.play').forEach(btn=>{
+  let id=null, k=0;
+  btn.addEventListener('click',()=>{
+    const box = btn.closest('.fwrap').querySelector('.frames');
+    const frs = [...box.querySelectorAll('.fr')];
+    if(id){ clearInterval(id); id=null; box.classList.remove('playing');
+            frs.forEach((f,i)=>f.classList.toggle('on',i===0)); btn.textContent='▶ 움직임 이어서 보기'; return; }
+    box.classList.add('playing'); btn.textContent='■ 멈추고 나란히 보기'; k=0;
+    const step=()=>{ frs.forEach((f,i)=>f.classList.toggle('on',i===k)); k=(k+1)%frs.length; };
+    step(); id=setInterval(step,1100);
+  });
+});
+
+document.querySelectorAll('#filters .f').forEach(b=>b.addEventListener('click',()=>{
+  const s=b.dataset.s;
+  document.querySelectorAll('#filters .f').forEach(x=>x.setAttribute('aria-pressed',String(x===b)));
+  document.querySelectorAll('.exc').forEach(c=>c.style.display=(s==='all'||c.dataset.s===s)?'':'none');
+}));
+</script>
+</body>
+</html>

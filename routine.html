@@ -1,0 +1,433 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>무소음 홈트 루틴 · 주 5회 × 20분 · 덤벨 5kg 1개</title>
+<style>
+  :root{
+    color-scheme:dark;
+    --bg:#131311; --card:#1B1B18; --ink:#F2F0EB; --muted:#A29C92;
+    --line:#2F2E2A; --accent:#F0834F;
+    --a:#E5A05A; --b:#6FA8EA; --c:#EE7F95;
+    --ok:#5FCE86; --no:#F08080;
+    --radius:14px;
+  }
+  *{box-sizing:border-box}
+  html,body{background:var(--bg)}
+  body{margin:0; background:var(--bg); color:var(--ink);
+    font-family:"Pretendard","Pretendard Variable",-apple-system,BlinkMacSystemFont,"Apple SD Gothic Neo","Malgun Gothic","Noto Sans KR",sans-serif;
+    line-height:1.62; -webkit-font-smoothing:antialiased;}
+  .wrap{max-width:880px; margin:0 auto; padding:32px 20px 80px}
+  .eyebrow{font-size:12px; letter-spacing:.14em; text-transform:uppercase; color:var(--accent); font-weight:700}
+  h1{font-size:30px; line-height:1.25; margin:8px 0 10px; letter-spacing:-.02em}
+  .lede{color:var(--muted); font-size:15px; margin:0}
+  .pillrow{display:flex; flex-wrap:wrap; gap:8px; margin-top:16px}
+  .pill{font-size:12.5px; font-weight:600; padding:5px 11px; border-radius:999px; background:#262521; color:#B8B2A8; border:1px solid var(--line)}
+  section{margin-top:34px}
+  h2{font-size:19px; margin:0 0 4px; letter-spacing:-.01em}
+  .sub{color:var(--muted); font-size:13.5px; margin:0 0 16px}
+  .card{background:var(--card); border:1px solid var(--line); border-radius:var(--radius); padding:18px}
+  .cov{display:grid; grid-template-columns:repeat(auto-fill,minmax(212px,1fr)); gap:10px}
+  .cv{background:var(--card); border:1px solid var(--line); border-radius:12px; padding:12px 13px}
+  .cv.miss{border-color:#4A3330; background:#251A1A}
+  .cv .lab{font-size:12px; color:var(--muted); display:flex; align-items:center; gap:6px; font-weight:600}
+  .dot{width:7px;height:7px;border-radius:50%;background:var(--ok);flex:0 0 auto}
+  .cv.miss .dot{background:var(--no)}
+  .cv .val{font-size:14.5px; font-weight:650; margin-top:5px}
+  .cv.miss .val{color:var(--no)}
+  .cv .note{font-size:12.5px; color:var(--muted); margin-top:3px}
+  .callout{border-left:3px solid var(--accent); background:#26201C; padding:13px 15px; border-radius:0 10px 10px 0; font-size:14px; margin-top:14px}
+  .callout b{color:var(--accent)}
+  .tips{display:grid; grid-template-columns:repeat(auto-fit,minmax(240px,1fr)); gap:10px}
+  .tip{background:var(--card); border:1px solid var(--line); border-radius:12px; padding:14px}
+  .tip h4{margin:0 0 5px; font-size:14px}
+  .tip p{margin:0; font-size:13px; color:var(--muted)}
+  .tip .kbd{display:inline-block; font-size:11.5px; font-weight:700; color:var(--accent); background:#2A211B; border-radius:5px; padding:1px 6px; margin-bottom:5px}
+  .tabs{display:flex; gap:8px; margin-bottom:14px; flex-wrap:wrap}
+  .tab{flex:1; min-width:150px; text-align:left; cursor:pointer; background:var(--card); border:1px solid var(--line);
+       border-radius:12px; padding:11px 13px; font:inherit; transition:.15s}
+  .tab:hover{border-color:#4A473F}
+  .tab .tn{font-size:12px; font-weight:700; letter-spacing:.06em; color:var(--muted)}
+  .tab .tt{font-size:14.5px; font-weight:650; margin-top:2px}
+  .tab[aria-selected="true"]{box-shadow:inset 0 0 0 2px currentColor; background:#1B1B18}
+  .tab[aria-selected="true"] .tn:first-child{color:inherit}
+  .barwrap{display:flex; align-items:center; gap:10px; margin:2px 0 16px}
+  .bar{flex:1; height:7px; background:#262521; border-radius:99px; overflow:hidden}
+  .bar i{display:block; height:100%; width:0%; background:var(--accent); border-radius:99px; transition:width .25s}
+  .barpct{font-size:12.5px; color:var(--muted); font-variant-numeric:tabular-nums; min-width:74px; text-align:right}
+  .ex{display:flex; gap:12px; padding:13px 0; border-bottom:1px solid var(--line)}
+  .ex:last-child{border-bottom:0}
+  .chk{width:22px;height:22px;flex:0 0 auto;margin-top:2px;border:1.5px solid #45433D;border-radius:6px;background:#1B1B18;
+       cursor:pointer;display:grid;place-items:center;padding:0;transition:.15s}
+  .chk svg{width:13px;height:13px;opacity:0;transition:.15s}
+  .chk[aria-pressed="true"]{background:var(--accent);border-color:var(--accent)}
+  .chk[aria-pressed="true"] svg{opacity:1}
+  .ex.done .exname{text-decoration:line-through; color:var(--muted)}
+  .exname{font-size:15px; font-weight:650; display:flex; align-items:center; gap:7px; flex-wrap:wrap}
+  .badge{font-size:10.5px; font-weight:700; padding:2px 7px; border-radius:99px; background:#33291A; color:#E5A05A; letter-spacing:.02em}
+  .badge.keep{background:#18291F; color:#6FCB92}
+  .badge.sup{background:#1E2438; color:#9DB0F0}
+  .sets{font-size:13px; color:var(--accent); font-weight:650; margin-top:2px}
+  .cue{font-size:13px; color:var(--muted); margin-top:3px}
+  .why{font-size:12.5px; color:#7A746B; margin-top:3px; font-style:italic}
+  details.wu{margin-top:14px; border-top:1px solid var(--line); padding-top:12px}
+  details.wu summary{cursor:pointer; font-size:13.5px; font-weight:650; color:var(--muted)}
+  details.wu ul{margin:8px 0 0; padding-left:18px; font-size:13.5px; color:var(--muted)}
+  .timer{display:flex; gap:20px; align-items:center; flex-wrap:wrap}
+  .clock{font-size:52px; font-weight:700; font-variant-numeric:tabular-nums; letter-spacing:-.03em; min-width:132px}
+  .phase{font-size:13px; font-weight:700; letter-spacing:.1em; text-transform:uppercase}
+  .phase.work{color:var(--no)} .phase.rest{color:var(--b)} .phase.idle{color:var(--muted)}
+  .tmeta{font-size:13px; color:var(--muted); margin-top:2px}
+  .btns{display:flex; gap:8px; flex-wrap:wrap}
+  button.btn{font:inherit; font-size:14px; font-weight:650; padding:9px 17px; border-radius:10px; cursor:pointer; border:1px solid var(--line); background:#1B1B18; color:var(--ink); transition:.15s}
+  button.btn:hover{border-color:#4A473F}
+  button.btn.primary{background:var(--accent); border-color:var(--accent); color:#1B1B18}
+  .circuit{margin-top:14px; display:grid; grid-template-columns:repeat(auto-fill,minmax(170px,1fr)); gap:8px}
+  .cit{border:1px solid var(--line); border-radius:10px; padding:9px 11px; font-size:13.5px; background:#1B1B18; transition:.15s}
+  .cit.active{border-color:var(--no); background:#2A1D1D; font-weight:650}
+  .cit .ci{font-size:11px; color:var(--muted); font-weight:700}
+  .week{display:grid; grid-template-columns:repeat(7,1fr); gap:7px}
+  .day{border:1px solid var(--line); border-radius:11px; padding:10px 6px; text-align:center; cursor:pointer; background:#1B1B18; font:inherit; transition:.15s}
+  .day .dn{font-size:11.5px; color:var(--muted); font-weight:700}
+  .day .dv{font-size:15px; font-weight:750; margin-top:4px}
+  .day.rest .dv{color:#6E6A63; font-size:13px; font-weight:600}
+  .day[aria-pressed="true"]{background:#17281E; border-color:#3D6B4F}
+  .day[aria-pressed="true"] .dv::after{content:" ✓"; color:var(--ok)}
+  .prog{display:grid; grid-template-columns:repeat(auto-fit,minmax(190px,1fr)); gap:10px}
+  .pw{background:var(--card); border:1px solid var(--line); border-radius:12px; padding:14px}
+  .pw .wk{font-size:11.5px; font-weight:800; letter-spacing:.08em; color:var(--accent)}
+  .pw h4{margin:4px 0 5px; font-size:14.5px}
+  .pw p{margin:0; font-size:13px; color:var(--muted)}
+  table.rule{width:100%; border-collapse:collapse; font-size:13.5px; margin-top:2px}
+  table.rule td{padding:9px 0; border-bottom:1px solid var(--line); vertical-align:top}
+  table.rule td:first-child{width:132px; font-weight:650; color:var(--muted)}
+  table.rule tr:last-child td{border-bottom:0}
+  .statrow{display:grid; grid-template-columns:repeat(auto-fit,minmax(132px,1fr)); gap:10px; margin-bottom:14px}
+  .stat{background:#1B1B18; border:1px solid var(--line); border-radius:12px; padding:12px 13px}
+  .stat .sl{font-size:11.5px; color:var(--muted); font-weight:700; letter-spacing:.04em}
+  .stat .sv{font-size:21px; font-weight:750; letter-spacing:-.02em; margin-top:2px}
+  .stat .sn{font-size:12px; color:var(--muted); margin-top:1px}
+  footer{margin-top:44px; padding-top:18px; border-top:1px solid var(--line); font-size:12.5px; color:var(--muted)}
+  .disc{font-size:12.5px; color:#7A746B; margin-top:10px}
+  @media(max-width:640px){h1{font-size:25px} .clock{font-size:44px} .week{grid-template-columns:repeat(4,1fr)} .tab{min-width:100%}}
+</style>
+</head>
+<body>
+<div class="wrap">
+
+<header>
+  <div class="eyebrow">아파트 무소음 · 주 5회 × 20분 · 덤벨 5kg 1개</div>
+  <h1>구성 자체는 괜찮아요. 다만 <span style="color:var(--accent)">당기기·엉덩이</span>가 비었고,<br>팔굽혀펴기는 이미 <span style="color:var(--accent)">너무 쉬운 상태</span>예요.</h1>
+  <p class="lede">체력·건강 유지 / 주 5회 20분 / 층간소음 / 덤벨 5kg 1개 / 168cm·54kg / 푸시업 30~35회 — 이 조건 그대로 다시 짠 A·B·C 로테이션입니다.</p>
+  <div class="pillrow">
+    <span class="pill">기존 5종목 전부 살림</span>
+    <span class="pill">보강 5종목 추가</span>
+    <span class="pill">점프 동작 0</span>
+    <span class="pill">덤벨 1개로 되는 것만</span>
+  </div>
+</header>
+
+<section>
+  <h2>1. 지금 구성의 커버 맵</h2>
+  <p class="sub">몸은 크게 8개 패턴으로 씁니다. 지금 5종목이 채우는 칸과, 비어 있는 칸.</p>
+  <div class="cov" id="cov"></div>
+  <div class="callout">
+    <b>핵심 두 줄.</b><br>
+    ① 팔굽혀펴기(밀기)는 있는데 <b>당기기</b>가 없습니다. 덤벨 컬은 팔꿈치만 굽히는 동작이라 등은 거의 안 써요. 밀기만 계속하면 가슴 앞쪽만 짧아져 <b>어깨가 앞으로 말립니다.</b> 밀기 : 당기기 = 1 : 1이 원칙이에요.<br>
+    ② 스쿼트는 앞벅지 위주라, 앉아 있는 시간이 길수록 약해지는 <b>엉덩이·햄스트링</b>이 그대로 비어 있습니다.
+  </div>
+</section>
+
+<section>
+  <h2>2. 알려주신 조건으로 다시 계산한 것</h2>
+  <p class="sub">푸시업 30~35회, 덤벨 5kg 1개, 168cm·53~55kg — 이 셋이 루틴을 꽤 많이 바꿉니다.</p>
+  <div class="statrow">
+    <div class="stat"><div class="sl">BMI</div><div class="sv">18.8 – 19.5</div><div class="sn">정상 범위(18.5–24.9)의 아래쪽</div></div>
+    <div class="stat"><div class="sl">푸시업 수준</div><div class="sv">중상급</div><div class="sn">30회 이상 = 근지구력 영역</div></div>
+    <div class="stat"><div class="sl">하루 단백질 목표</div><div class="sv">76 – 86g</div><div class="sn">체중 1.4–1.6g/kg 기준</div></div>
+  </div>
+  <div class="tips">
+    <div class="tip"><span class="kbd">푸시업 30회</span><h4>일반 푸시업은 이제 워밍업이에요</h4><p>30회가 되면 근력이 아니라 <b>근지구력</b>을 훈련하는 구간입니다. 횟수를 늘리지 말고 <b>동작을 어렵게</b> 바꾸세요 — 발을 의자에 올린 디클라인, 손을 모으는 다이아몬드, 또는 내려갈 때 4초. 그러면 10~15회에서 다시 힘들어집니다.</p></div>
+    <div class="tip"><span class="kbd">덤벨 5kg × 1</span><h4>한 개뿐인 게 오히려 유리해요</h4><p>양손용 운동은 못 하지만 <b>한쪽씩 하는 운동</b>엔 딱 맞습니다. 원암 로우·고블릿 스쿼트·한 팔 숄더 프레스가 전부 덤벨 1개로 되고, 좌우를 따로 하면 <b>몸이 안 기울게 버티는 코어</b>까지 같이 씁니다. 무게가 가벼운 건 <b>정점 2초 정지 + 내릴 때 3초</b>로 메꿔요.</p></div>
+    <div class="tip"><span class="kbd">168cm · 54kg</span><h4>뺄 게 아니라 채울 몸이에요</h4><p>BMI 19면 감량 대상이 아닙니다. 유산소를 과하게 늘리면 근육이 같이 빠져요. <b>근력 4 : 유산소 1</b> 비율로 짰습니다. 그리고 이 체격에선 운동보다 <b>하루 단백질 76~86g</b>을 채우는 게 변화를 더 크게 만듭니다.</p></div>
+  </div>
+</section>
+
+<section>
+  <h2>3. 층간소음 3원칙</h2>
+  <p class="sub">아파트라면 이 세 가지만 지켜도 아래층 체감이 확 달라집니다.</p>
+  <div class="tips">
+    <div class="tip"><h4>발이 바닥에서 떨어지면 안 됩니다</h4><p>소음은 전부 '착지'에서 나와요. 팔벌려뛰기는 <b>스텝 잭</b>(뛰지 말고 한 발씩 옆으로 내딛기)으로 그대로 대체됩니다. 팔을 크게 쓰면 강도는 유지돼요.</p></div>
+    <div class="tip"><h4>손 짚는 동작이 제일 조용합니다</h4><p>플랭크·마운틴 클라이머처럼 체중이 네 지점으로 나뉘는 동작은 소음이 거의 없어요. 유산소를 이쪽으로 몰아주세요.</p></div>
+    <div class="tip"><h4>매트 2겹 + 시간대</h4><p>층간소음 매트 위에 요가매트를 겹치면 저주파 진동이 크게 줄어요. 그리고 <b>밤 10시 이후엔 하지 않기</b> — 사실 매트보다 이게 더 효과적입니다.</p></div>
+  </div>
+</section>
+
+<section>
+  <h2>4. 주 5회 로테이션 — 오늘 할 것</h2>
+  <p class="sub">월 A · 화 B · 수 C · 목 A · 금 B · 주말은 빠른 걷기 30분. 탭으로 세션을 고르고, 끝낸 종목을 체크하세요.</p>
+  <div class="tabs" id="tabs" role="tablist"></div>
+  <div class="card">
+    <div class="barwrap"><div class="bar"><i id="bar"></i></div><div class="barpct" id="barpct">0 / 0 완료</div></div>
+    <div id="exlist"></div>
+    <details class="wu" id="wu"></details>
+  </div>
+</section>
+
+<section>
+  <h2>5. 인터벌 타이머</h2>
+  <p class="sub">C 세션(무소음 유산소 서킷)용. 30초 운동 / 15초 휴식 × 6종목 × 3라운드 = 13분 30초.</p>
+  <div class="card">
+    <div class="timer">
+      <div>
+        <div class="phase idle" id="phase">준비</div>
+        <div class="clock" id="clock">00:30</div>
+        <div class="tmeta" id="tmeta">라운드 1 / 3 · 스텝 잭</div>
+      </div>
+      <div class="btns">
+        <button class="btn primary" id="startbtn">시작</button>
+        <button class="btn" id="resetbtn">처음으로</button>
+        <button class="btn" id="soundbtn" aria-pressed="true">소리 켜짐</button>
+      </div>
+    </div>
+    <div class="circuit" id="circuit"></div>
+  </div>
+</section>
+
+<section>
+  <h2>6. 4주 진행 계획</h2>
+  <p class="sub">상체는 이미 되니까 첫 2주는 <b>하체·등만</b> 여유를 둡니다. 안 쓰던 부위라 근육통이 세게 올 거예요.</p>
+  <div class="prog">
+    <div class="pw"><div class="wk">WEEK 1–2</div><h4>새 종목만 2세트</h4><p>덤벨 로우·싱글레그 힙브리지·프론 YTW는 <b>2세트</b>로 시작. 푸시업은 처음부터 표시된 변형 그대로 가도 됩니다.</p></div>
+    <div class="pw"><div class="wk">WEEK 3–4</div><h4>전 종목 표시대로</h4><p>3세트 완주. 마지막 세트에서 <b>2~3회 더 할 수 있을 것 같은 지점</b>에서 멈추세요. 매번 한계까지 갈 필요 없습니다.</p></div>
+    <div class="pw"><div class="wk">WEEK 5+</div><h4>무게 대신 지렛대</h4><p>덤벨은 계속 5kg여도 됩니다. <b>한 다리·한 팔로 바꾸기 → 정지 시간 늘리기 → 내리는 속도 늦추기</b> 순으로 어렵게 만드세요. 덤벨 추가는 맨 마지막 수단.</p></div>
+  </div>
+  <div class="card" style="margin-top:12px">
+    <table class="rule">
+      <tr><td>세트 사이 휴식</td><td>A·B 세션 40~60초. C 서킷은 타이머대로 15초.</td></tr>
+      <tr><td>20분 안에 못 끝내면</td><td><b>슈퍼셋</b> 표시된 두 종목을 쉬지 않고 이어서 하세요. 3분 정도 줄어듭니다. 그래도 넘치면 맨 아래 종목을 빼세요.</td></tr>
+      <tr><td>근육통</td><td>2~3일이면 빠집니다. 3일 넘게 아프면 그 부위만 한 번 건너뛰세요.</td></tr>
+      <tr><td>빠진 날</td><td>따라잡으려 두 개 몰아 하지 마세요. 그날 껀 버리고 다음 순서로 갑니다.</td></tr>
+      <tr><td>주간 총량</td><td>A·B 4회 = 근력 권장(주 2일 이상) 충족. 유산소는 C 1회(약 14분 고강도) + 주말 빠른 걷기 30분 × 2회 = WHO 권장선 도달.</td></tr>
+      <tr><td>먹는 것</td><td>한 끼에 단백질 20g 정도(계란 3개, 그릭요거트 200g, 닭가슴살 90g, 두부 2/3모, 삶은 렌틸 1컵+계란 1개). 타이밍은 급하지 않아요 — 운동의 동화 효과는 24시간 이상 갑니다. 이 체격에선 하루 총량이 세트 하나보다 큽니다.</td></tr>
+    </table>
+  </div>
+</section>
+
+<section>
+  <h2>7. 이번 주 체크</h2>
+  <p class="sub">해낸 날을 눌러 표시하세요.</p>
+  <div class="week" id="week"></div>
+</section>
+
+
+<section>
+  <h2>8. 자주 묻는 것 두 가지</h2>
+  <p class="sub">직접 해보면 바로 떠오르는 질문들이에요.</p>
+
+  <div class="card">
+    <h3 style="margin:0 0 3px;font-size:16px">Q. C 세션 날이 아닌데 스텝 잭 같은 걸 더 해도 되나요?</h3>
+    <p style="margin:0 0 12px;font-size:14px;color:var(--ok);font-weight:650">네, 됩니다. 다만 조건이 세 개 있어요.</p>
+    <table class="rule">
+      <tr><td>순서</td><td>근력 운동 <b>앞이 아니라 뒤</b>에 붙이세요. 또는 아예 다른 시간대(아침/저녁)로. 유산소를 먼저 하면 근력 세션의 질이 떨어집니다.</td></tr>
+      <tr><td>양</td><td><b>하루 5~10분부터.</b> 스텝 잭·제자리 걷기·계단 같은 저강도 유산소는 근력 회복을 거의 방해하지 않아요. 회복을 방해하는 건 길고 강한 유산소입니다.</td></tr>
+      <tr><td>멈출 신호</td><td><b>체중이 빠지기 시작하면 줄이세요.</b> BMI 19에서 유산소를 크게 늘리면 지방보다 근육이 먼저 빠집니다. 이 체격에선 그게 원하는 방향이 아니에요.</td></tr>
+      <tr><td>A 세션 날</td><td>하체를 이미 썼으니 그날은 짧게, 팔을 크게 쓰는 쪽으로. 다음 날이 B(상체)라 회복에 큰 문제는 없습니다.</td></tr>
+    </table>
+    <div class="callout" style="margin-top:14px"><b>사실 더 효과적인 건</b> 따로 시간 내서 하는 유산소보다 <b>일상 활동량</b>입니다. 엘리베이터 대신 계단, 한 정거장 미리 내려 걷기 — 이런 게 하루 총 소비에서 차지하는 비중이 훨씬 큽니다. 게다가 층간소음도 0이고요.</div>
+  </div>
+
+  <div class="card" style="margin-top:12px">
+    <h3 style="margin:0 0 3px;font-size:16px">Q. 이 루틴대로 하면 튀어나온 아랫뱃살도 없어지나요?</h3>
+    <p style="margin:0 0 12px;font-size:14px;color:var(--muted)">솔직하게 두 부분으로 나눠서 답할게요.</p>
+    <div class="tips">
+      <div class="tip"><h4>먼저 — 부위별로 빼는 건 안 됩니다</h4><p>복근 운동을 아무리 해도 <b>그 위에 있는 지방만 골라서 빠지지는 않아요.</b> 지방은 전신에서 같이 줄어듭니다. "아랫배만 빼는 운동"은 없어요.</p></div>
+      <div class="tip"><h4>그런데 BMI 19에서 나온 배는 대개 지방이 아니에요</h4><p>168cm·54kg이면 뺄 지방 자체가 많지 않습니다. 이 체격에서 아랫배가 나와 보이는 건 보통 <b>①골반이 앞으로 기울어짐 ②복부 팽만(가스·소화) ③심부 코어 약화</b> 셋 중 하나예요.</p></div>
+      <div class="tip"><h4>이 루틴이 ①과 ③을 직접 다룹니다</h4><p><b>싱글레그 힙 브리지 · 데드버그 · 플랭크 · 프론 Y-T-W</b> — 이 넷이 정확히 골반 정렬과 심부 코어 조합입니다. 배를 안쪽에서 잡아주는 근육이라, 자전거 크런치(표면 근육)보다 <b>배가 들어가 보이게</b> 하는 데 더 직접적이에요.</p></div>
+    </div>
+    <div class="callout" style="margin-top:14px">
+      <b>정리하면</b> · 살이 빠져서가 아니라 <b>배가 앞으로 밀려나오는 원인이 줄어서</b> 달라질 가능성이 높습니다. 다만 몇 주가 아니라 <b>2~3개월</b> 단위로 보세요.<br><br>
+      그리고 하나만 당부드릴게요. <b>이 체중에서 식사를 줄이는 방향으로는 가지 마세요.</b> BMI 19는 이미 정상 범위의 아래쪽이라, 덜 먹으면 지방보다 근육이 먼저 빠집니다. 근육이 빠지면 배는 오히려 더 처져 보여요. 잘 먹으면서 ①·③을 고치는 게 이 몸에서는 유일하게 효과 있는 경로입니다.
+    </div>
+  </div>
+</section>
+
+<footer>
+  <div><b>기준 출처</b> · WHO 신체활동 지침(성인 18–64세): 중강도 유산소 주 150–300분 또는 고강도 75–150분 + 모든 주요 근육군 근력운동 주 2일 이상. CDC 성인 권장: 주 150분 + 근력 주 2일. BMI 정상 범위 18.5–24.9.</div>
+  <div class="disc">운동 중 관절에 찌르는 통증, 어지럼증, 가슴 답답함이 있으면 즉시 멈추세요. 기저질환이 있거나 통증이 반복되면 의사·물리치료사와 상의하시는 편이 좋습니다. 이 문서는 일반적인 정보이고 개인별 진단을 대신하지 않아요.</div>
+</footer>
+
+</div>
+
+<script>
+const COVERAGE = [
+  {lab:'하체 밀기 (무릎)', val:'스쿼트', ok:true, note:'앞벅지 위주'},
+  {lab:'상체 밀기 (수평)', val:'팔굽혀펴기', ok:true, note:'⚠ 30회 가능 = 난이도 상향 필요'},
+  {lab:'팔 앞쪽', val:'덤벨 컬', ok:true, note:'이두근'},
+  {lab:'코어 굴곡·회전', val:'자전거 크런치', ok:true, note:'복직근·복사근'},
+  {lab:'유산소', val:'팔벌려뛰기', ok:true, note:'⚠ 아파트에선 착지 소음 — 대체'},
+  {lab:'상체 당기기 (등)', val:'없음', ok:false, note:'광배근·승모근 중하부 → 덤벨 원암 로우'},
+  {lab:'엉덩이·햄스트링', val:'없음', ok:false, note:'후면 사슬 → 싱글레그 힙 브리지'},
+  {lab:'코어 안정성', val:'없음', ok:false, note:'허리를 버티는 힘 → 플랭크·데드버그'},
+];
+
+const SESSIONS = {
+  A:{ name:'하체 + 엉덩이', tag:'앞벅지 말고 뒤쪽까지', hex:'#E5A05A',
+    warm:['제자리에서 팔 크게 돌리기 60초','맨몸 스쿼트 아주 천천히 10회','한 발씩 무릎 가슴으로 당기기 좌우 8회'],
+    cool:['앞벅지 스트레칭 좌우 30초','비둘기 자세(엉덩이) 좌우 30초','누워서 햄스트링 당기기 좌우 30초'],
+    items:[
+      {n:'고블릿 스쿼트 (덤벨 5kg)', tag:'변형', s:'3세트 × 12~15회', cue:'덤벨을 가슴 앞에 세워 들고 스쿼트. 무릎은 발끝 방향, <b>내려갈 때 3초</b>. 앞에 무게가 있으면 상체가 덜 숙여져 자세가 좋아집니다.', why:'덤벨 1개로 할 수 있는 최고의 하체 종목'},
+      {n:'리버스 런지', tag:'추가', s:'3세트 × 좌우 8~10회', cue:'뒤로 내딛기. 앞으로 내딛는 것보다 무릎 부담이 적고 소리도 덜 납니다. 덤벨은 한 손에 들면 강도 ↑', why:'좌우 불균형 교정 + 엉덩이 동원'},
+      {n:'싱글레그 힙 브리지', tag:'추가', s:'3세트 × 좌우 10~12회', cue:'한 다리는 들고 한 다리로만 엉덩이 들기. 맨 위에서 2초 멈추고 엉덩이를 꽉. <b>5kg보다 한 다리가 훨씬 셉니다.</b>', why:'★ 비어 있던 엉덩이 — 앉아 있는 시간이 길수록 필수'},
+      {n:'데드버그', tag:'추가', s:'2세트 × 좌우 8회', cue:'허리를 바닥에 붙인 채 반대쪽 팔다리를 천천히 뻗기. 허리가 뜨면 범위를 줄이세요.', why:'★ 허리를 지켜주는 코어 안정성'},
+    ]},
+  B:{ name:'상체 밀기 + 당기기', tag:'1 : 1 균형 맞추기', hex:'#6FA8EA',
+    warm:['어깨 앞뒤로 크게 돌리기 각 15회','벽에 손 대고 가슴 열기 30초','고양이-소 자세 10회'],
+    cool:['문틀 잡고 가슴 스트레칭 좌우 30초','팔 가로질러 어깨 뒤 늘리기 좌우 20초','목 옆으로 기울이기 좌우 20초'],
+    items:[
+      {n:'푸시업 — 난이도 올린 버전', tag:'변형', s:'3세트 × 10~15회', cue:'셋 중 하나 고르세요. ① <b>디클라인</b>: 발을 의자·소파에 올리기 ② <b>다이아몬드</b>: 두 손 모아 삼각형 ③ <b>템포</b>: 내려갈 때 4초 + 바닥 1cm에서 1초 정지. 30회 되던 사람도 10회에서 힘들어집니다.', why:'★ 일반 푸시업 30회는 이미 자극 구간을 넘었어요'},
+      {n:'덤벨 원암 로우 (5kg)', tag:'슈퍼셋', s:'3세트 × 좌우 12~15회', cue:'의자에 한 손 짚고 상체 숙이기. 팔로 당기지 말고 <b>날개뼈를 뒷주머니 쪽으로 끌어내린다</b>는 느낌. 5kg이 가벼우니 <b>맨 위에서 2초 정지</b> 필수.', why:'★★ 가장 중요한 추가 — 없던 당기기를 채웁니다'},
+      {n:'프론 Y-T-W', tag:'슈퍼셋', s:'2세트 × 각 8회', cue:'엎드려서 팔을 Y → T → W 모양으로 들어올리기. 무게 필요 없어요. 목이 아니라 <b>날개뼈 사이</b>에 힘이 들어가야 합니다.', why:'★ 라운드 숄더에 직접 듣는 자세 운동'},
+      {n:'덤벨 컬 (5kg)', tag:'유지', s:'2세트 × 좌우 12~15회', cue:'팔꿈치를 옆구리에 고정. 내릴 때 3초. 한쪽 끝내고 반대쪽.', why:'하던 그대로 — 보조 운동이라 뒤로 배치'},
+      {n:'플랭크', tag:'추가', s:'2세트 × 45~60초', cue:'엉덩이를 너무 올리지도 내리지도 않게 일자로. 푸시업 30회가 되면 45초는 무난할 거예요.', why:'★ 코어 안정성'},
+    ]},
+  C:{ name:'무소음 유산소 서킷', tag:'점프 0 · 전신', hex:'#EE7F95',
+    warm:['제자리 걷기 + 팔 돌리기 90초','상체 좌우 비틀기 20회'],
+    cool:['숨 고르며 천천히 걷기 60초','전신 스트레칭 2분'],
+    items:[
+      {n:'스텝 잭', tag:'대체', s:'30초', cue:'팔벌려뛰기의 무소음 버전. 뛰지 말고 한 발씩 옆으로 내딛기. 팔은 똑같이 크게 위로.', why:'★ 팔벌려뛰기를 소리 없이 그대로 대체'},
+      {n:'스쿼트 + 펀치', tag:'유지', s:'30초', cue:'앉았다 일어나면서 앞으로 번갈아 지르기. 심박수가 제일 빨리 올라가는 동작.', why:'스쿼트 응용'},
+      {n:'마운틴 클라이머 (천천히)', tag:'추가', s:'30초', cue:'플랭크 자세에서 무릎을 가슴으로. 빨리 말고 정확하게 — 손 짚는 자세라 조용합니다.', why:'유산소 + 코어 동시에'},
+      {n:'자전거 크런치', tag:'유지', s:'30초', cue:'목을 손으로 당기지 말고, 팔꿈치와 반대 무릎이 만난다는 느낌으로 천천히.', why:'하던 그대로'},
+      {n:'슬로우 버피 (점프 없이)', tag:'추가', s:'30초', cue:'점프·손뼉 전부 빼고 발을 <b>걸어서</b> 뒤로 보냈다 앞으로. 소음 없이 전신을 씁니다.', why:'전신 대사 자극'},
+      {n:'힙 브리지 마치', tag:'추가', s:'30초', cue:'브리지 자세를 유지한 채 한쪽 무릎씩 들기. 엉덩이 높이가 떨어지지 않게.', why:'★ 엉덩이 마무리'},
+    ]},
+};
+
+const WEEK = [['월','A'],['화','B'],['수','C'],['목','A'],['금','B'],['토','걷기'],['일','휴식']];
+const CIRCUIT = SESSIONS.C.items.map(i=>i.n);
+const WORK=30, REST=15, ROUNDS=3;
+const BADGE = {'유지':'keep','슈퍼셋':'sup','추가':'','변형':'','대체':''};
+
+let current='A';
+const done = {A:new Set(), B:new Set(), C:new Set()};
+const weekDone = new Set();
+const CHECK='<svg viewBox="0 0 24 24" fill="none" stroke="#1B1B18" stroke-width="3.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg>';
+
+document.getElementById('cov').innerHTML = COVERAGE.map(c=>
+  `<div class="cv ${c.ok?'':'miss'}"><div class="lab"><span class="dot"></span>${c.lab}</div>
+   <div class="val">${c.val}</div><div class="note">${c.note}</div></div>`).join('');
+
+document.getElementById('tabs').innerHTML = Object.entries(SESSIONS).map(([k,s])=>
+  `<button class="tab" role="tab" data-k="${k}" aria-selected="${k===current}" style="color:${s.hex}">
+     <div class="tn">SESSION ${k}</div><div class="tt" style="color:var(--ink)">${s.name}</div>
+     <div class="tn" style="font-weight:500;letter-spacing:0;margin-top:3px;color:var(--muted)">${s.tag}</div>
+   </button>`).join('');
+
+function renderSession(){
+  const s = SESSIONS[current];
+  document.documentElement.style.setProperty('--accent', s.hex);
+  document.getElementById('exlist').innerHTML = s.items.map((it,i)=>{
+    const isDone = done[current].has(i);
+    return `<div class="ex ${isDone?'done':''}" data-i="${i}">
+      <button class="chk" aria-pressed="${isDone}" aria-label="${it.n} 완료">${CHECK}</button>
+      <div style="flex:1">
+        <div class="exname">${it.n}<span class="badge ${BADGE[it.tag]||''}">${it.tag}</span></div>
+        <div class="sets">${it.s}</div>
+        <div class="cue">${it.cue}</div>
+        <div class="why">${it.why}</div>
+      </div></div>`;
+  }).join('');
+  document.getElementById('wu').innerHTML =
+    `<summary>워밍업 3분 · 마무리 스트레칭 3분 (펼치기)</summary>
+     <ul>${s.warm.map(w=>`<li><b>워밍업</b> — ${w}</li>`).join('')}${s.cool.map(c=>`<li><b>마무리</b> — ${c}</li>`).join('')}</ul>`;
+  document.querySelectorAll('#exlist .chk').forEach(btn=>{
+    btn.addEventListener('click',()=>{
+      const i = +btn.closest('.ex').dataset.i;
+      done[current].has(i) ? done[current].delete(i) : done[current].add(i);
+      renderSession();
+    });
+  });
+  const t = s.items.length, d = done[current].size;
+  document.getElementById('bar').style.width = (t? d/t*100:0)+'%';
+  document.getElementById('barpct').textContent = `${d} / ${t} 완료`;
+}
+document.querySelectorAll('.tab').forEach(t=>t.addEventListener('click',()=>{
+  current = t.dataset.k;
+  document.querySelectorAll('.tab').forEach(x=>x.setAttribute('aria-selected', String(x.dataset.k===current)));
+  renderSession();
+}));
+renderSession();
+
+document.getElementById('week').innerHTML = WEEK.map(([d,v],i)=>
+  `<button class="day ${(v==='걷기'||v==='휴식')?'rest':''}" data-i="${i}" aria-pressed="false">
+     <div class="dn">${d}</div><div class="dv">${v}</div></button>`).join('');
+document.querySelectorAll('.day').forEach(b=>b.addEventListener('click',()=>{
+  const i=+b.dataset.i, on = weekDone.has(i);
+  on ? weekDone.delete(i) : weekDone.add(i);
+  b.setAttribute('aria-pressed', String(!on));
+}));
+
+document.getElementById('circuit').innerHTML = CIRCUIT.map((c,i)=>
+  `<div class="cit" data-i="${i}"><div class="ci">${i+1}</div>${c}</div>`).join('');
+
+let tIdx=0, tRound=1, tPhase='work', tLeft=WORK, tId=null, sound=true;
+const $clock=document.getElementById('clock'), $phase=document.getElementById('phase'),
+      $tmeta=document.getElementById('tmeta'), $start=document.getElementById('startbtn');
+
+function beep(freq,dur){
+  if(!sound) return;
+  try{
+    const AC = window.AudioContext||window.webkitAudioContext; if(!AC) return;
+    const ctx = beep.ctx || (beep.ctx = new AC());
+    if(ctx.state==='suspended') ctx.resume();
+    const o=ctx.createOscillator(), g=ctx.createGain();
+    o.frequency.value=freq; o.type='sine'; o.connect(g); g.connect(ctx.destination);
+    g.gain.setValueAtTime(.0001,ctx.currentTime);
+    g.gain.exponentialRampToValueAtTime(.18,ctx.currentTime+.02);
+    g.gain.exponentialRampToValueAtTime(.0001,ctx.currentTime+dur);
+    o.start(); o.stop(ctx.currentTime+dur);
+  }catch(e){}
+}
+function paint(){
+  const m=String(Math.floor(tLeft/60)).padStart(2,'0'), s=String(tLeft%60).padStart(2,'0');
+  $clock.textContent = m+':'+s;
+  const finished = tRound>ROUNDS;
+  $phase.className = 'phase '+(finished?'idle':tPhase);
+  $phase.textContent = finished?'완료':(tPhase==='work'?'운동':'휴식');
+  $tmeta.textContent = finished ? '수고하셨어요 — 마무리 스트레칭 3분 잊지 마세요'
+    : `라운드 ${tRound} / ${ROUNDS} · ${CIRCUIT[tIdx]}${tPhase==='rest'?' 다음 준비':''}`;
+  document.querySelectorAll('.cit').forEach(c=>
+    c.classList.toggle('active', !finished && +c.dataset.i===tIdx && tPhase==='work'));
+}
+function tick(){
+  tLeft--;
+  if(tLeft<=0){
+    if(tPhase==='work'){ tPhase='rest'; tLeft=REST; beep(660,.16); }
+    else{
+      tIdx++;
+      if(tIdx>=CIRCUIT.length){ tIdx=0; tRound++; }
+      if(tRound>ROUNDS){ stopTimer(); tLeft=0; beep(880,.5); paint(); return; }
+      tPhase='work'; tLeft=WORK; beep(880,.16);
+    }
+  } else if(tLeft<=3 && tLeft>0){ beep(520,.07); }
+  paint();
+}
+function stopTimer(){ clearInterval(tId); tId=null; $start.textContent='시작'; }
+function resetTimer(){ stopTimer(); tIdx=0; tRound=1; tPhase='work'; tLeft=WORK; paint(); }
+$start.addEventListener('click',()=>{
+  if(tId){ stopTimer(); return; }
+  if(tRound>ROUNDS) resetTimer();
+  beep(880,.16);
+  tId=setInterval(tick,1000); $start.textContent='일시정지';
+});
+document.getElementById('resetbtn').addEventListener('click',resetTimer);
+document.getElementById('soundbtn').addEventListener('click',(e)=>{
+  sound=!sound; e.currentTarget.setAttribute('aria-pressed',String(sound));
+  e.currentTarget.textContent = sound?'소리 켜짐':'소리 꺼짐';
+});
+paint();
+</script>
+</body>
+</html>

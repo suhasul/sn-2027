@@ -1,0 +1,364 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>렌틸콩 단백질 가이드 · 홈트 식단</title>
+<style>
+  :root{
+    color-scheme:dark;
+    --bg:#131311; --card:#1B1B18; --ink:#F2F0EB; --muted:#A29C92; --faint:#7A746B;
+    --line:#2F2E2A; --accent:#F0834F; --ok:#5FCE86; --warn:#E5A05A; --no:#F08080;
+    --surface-1:#1B1B18; --text-primary:#F2F0EB; --text-secondary:#B8B2A8;
+    --series-1:#3987e5; --series-2:#d95926; --grid:#2F2E2A; --chipbg:#262521; --chipink:#B8B2A8;
+  }
+  html,body{background:var(--bg)}
+  *{box-sizing:border-box}
+  body{margin:0;background:var(--bg);color:var(--ink);line-height:1.62;-webkit-font-smoothing:antialiased;
+    font-family:"Pretendard","Pretendard Variable",-apple-system,BlinkMacSystemFont,"Apple SD Gothic Neo","Malgun Gothic","Noto Sans KR",sans-serif;}
+  .wrap{max-width:880px;margin:0 auto;padding:32px 20px 80px}
+  .eyebrow{font-size:12px;letter-spacing:.14em;text-transform:uppercase;color:var(--accent);font-weight:700}
+  h1{font-size:29px;line-height:1.28;margin:8px 0 10px;letter-spacing:-.02em}
+  .lede{color:var(--muted);font-size:15px;margin:0}
+  h2{font-size:19px;margin:0 0 4px;letter-spacing:-.01em}
+  .sub{color:var(--muted);font-size:13.5px;margin:0 0 16px}
+  section{margin-top:34px}
+  .card{background:var(--card);border:1px solid var(--line);border-radius:14px;padding:18px}
+  /* verdict */
+  .verdict{background:var(--card);border:1px solid var(--line);border-left:4px solid var(--ok);border-radius:0 14px 14px 0;padding:18px 20px}
+  .verdict .yes{font-size:20px;font-weight:750;color:var(--ok);letter-spacing:-.01em}
+  .verdict p{margin:6px 0 0;font-size:14.5px}
+  .cond{display:grid;grid-template-columns:repeat(auto-fit,minmax(210px,1fr));gap:10px;margin-top:14px}
+  .cd{background:var(--bg);border:1px solid var(--line);border-radius:11px;padding:12px 13px}
+  .cd .n{font-size:11px;font-weight:800;letter-spacing:.08em;color:var(--accent)}
+  .cd h4{margin:3px 0 3px;font-size:14px}
+  .cd p{margin:0;font-size:12.8px;color:var(--muted)}
+  /* correction */
+  .fix{background:#26201C;border:1px solid #4A3427;border-radius:14px;padding:16px 18px;font-size:14px}
+  .fix .tt{font-weight:750;color:var(--accent);font-size:14.5px;margin-bottom:4px}
+  /* calc */
+  .calcrow{display:flex;gap:12px;align-items:center;flex-wrap:wrap;margin-bottom:14px}
+  .calcrow label{font-size:13.5px;font-weight:650;color:var(--muted)}
+  input[type=number]{font:inherit;font-size:15px;font-weight:700;width:88px;padding:7px 10px;border:1px solid var(--line);
+    border-radius:9px;background:var(--bg);color:var(--ink)}
+  .kpi{display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:10px}
+  .k{background:var(--bg);border:1px solid var(--line);border-radius:11px;padding:12px 13px}
+  .k .kl{font-size:11.5px;font-weight:700;color:var(--muted);letter-spacing:.03em}
+  .k .kv{font-size:22px;font-weight:750;letter-spacing:-.02em;margin-top:1px;font-variant-numeric:tabular-nums}
+  .k .kn{font-size:12px;color:var(--faint);margin-top:1px}
+  /* table */
+  table{width:100%;border-collapse:collapse;font-size:13.5px}
+  th{text-align:left;font-size:11.5px;letter-spacing:.04em;color:var(--muted);font-weight:700;padding:0 10px 8px 0;border-bottom:1px solid var(--line)}
+  td{padding:10px 10px 10px 0;border-bottom:1px solid var(--line);vertical-align:top}
+  tr:last-child td{border-bottom:0}
+  td.num{font-variant-numeric:tabular-nums;white-space:nowrap}
+  tr.hl td{background:#241F1B}
+  tr.hl td:first-child{font-weight:750;color:var(--accent)}
+  .mini{display:block;height:5px;border-radius:99px;background:var(--series-1);margin-top:5px;opacity:.85}
+  /* chart */
+  .chartcard{background:var(--surface-1);border:1px solid var(--line);border-radius:14px;padding:18px 18px 12px}
+  .ctitle{font-size:15px;font-weight:700;margin:0}
+  .csub{font-size:12.5px;color:var(--text-secondary);margin:2px 0 12px}
+  .legend{display:flex;gap:16px;flex-wrap:wrap;margin-bottom:8px}
+  .lg{display:flex;align-items:center;gap:6px;font-size:12.5px;color:var(--text-secondary);font-weight:600}
+  .sw{width:11px;height:11px;border-radius:3px;display:inline-block}
+  .chartbox{position:relative}
+  svg.chart{width:100%;height:auto;display:block;overflow:visible}
+  .axl{fill:var(--text-secondary);font-size:11px;font-family:inherit}
+  .axg{stroke:var(--grid);stroke-width:1}
+  .ref{stroke:var(--text-secondary);stroke-width:1}
+  .refl{fill:var(--text-secondary);font-size:10.5px;font-weight:700;font-family:inherit}
+  .dlab{fill:var(--text-primary);font-size:11.5px;font-weight:700;font-family:inherit;font-variant-numeric:tabular-nums}
+  .bar{cursor:pointer}
+  .bar:hover{opacity:.82}
+  .tip{position:absolute;pointer-events:none;background:var(--card2,#242320);border:1px solid var(--line);border-radius:9px;
+    padding:8px 11px;font-size:12.5px;box-shadow:0 6px 20px rgba(0,0,0,.6);opacity:0;transition:opacity .12s;white-space:nowrap;z-index:9}
+  .tip b{display:block;font-size:13px;margin-bottom:3px}
+  .tip .r{display:flex;align-items:center;gap:6px;font-variant-numeric:tabular-nums}
+  /* boxes */
+  .box{border-radius:11px;padding:12px 14px;font-size:13.8px;margin-top:11px}
+  .box>b:first-child{font-weight:750}
+  .box.key{background:var(--card);border-left:3px solid var(--accent)}
+  .box.key>b:first-child{color:var(--accent)}
+  .box.cau{background:var(--card);border-left:3px solid var(--warn)}
+  .box.cau>b:first-child{color:var(--warn)}
+  .box.good{background:var(--card);border-left:3px solid var(--ok)}
+  .box.good>b:first-child{color:var(--ok)}
+  /* meal plan */
+  .meals{display:grid;grid-template-columns:repeat(auto-fit,minmax(260px,1fr));gap:12px}
+  .meal{background:var(--card);border:1px solid var(--line);border-radius:13px;padding:15px}
+  .meal h4{margin:0 0 2px;font-size:15px}
+  .meal .mt{font-size:12.5px;color:var(--faint);margin-bottom:9px}
+  .meal ul{margin:0;padding-left:0;list-style:none}
+  .meal li{font-size:13.3px;padding:6px 0;border-bottom:1px solid var(--line);display:flex;justify-content:space-between;gap:10px}
+  .meal li:last-child{border-bottom:0}
+  .meal li span:last-child{color:var(--muted);font-variant-numeric:tabular-nums;white-space:nowrap}
+  .meal .tot{margin-top:9px;padding-top:9px;border-top:2px solid var(--line);display:flex;justify-content:space-between;font-size:13.5px;font-weight:750}
+  .tips3{display:grid;grid-template-columns:repeat(auto-fit,minmax(235px,1fr));gap:10px}
+  .t3{background:var(--card);border:1px solid var(--line);border-radius:12px;padding:14px}
+  .t3 .n{font-size:11px;font-weight:800;letter-spacing:.07em;color:var(--accent)}
+  .t3 h4{margin:3px 0 4px;font-size:14px}
+  .t3 p{margin:0;font-size:12.8px;color:var(--muted)}
+  footer{margin-top:42px;padding-top:18px;border-top:1px solid var(--line);font-size:12.3px;color:var(--faint)}
+  footer a{color:var(--muted)}
+  footer ul{margin:6px 0 0;padding-left:16px}
+  @media(max-width:640px){h1{font-size:24px}}
+</style>
+</head>
+<body>
+<div class="wrap">
+
+<header>
+  <div class="eyebrow">홈트 식단 · 렌틸콩 편</div>
+  <h1>렌틸콩으로 대체, 됩니다.<br>대신 <span style="color:var(--accent)">양은 그대로 쓰면 안 돼요.</span></h1>
+  <p class="lede">계란 3개를 렌틸콩으로 바꾸는 건 1:1 교환이 아닙니다. 단백질 양은 비슷한데 <b>아미노산 구성과 따라오는 섬유질</b>이 완전히 달라요.</p>
+</header>
+
+<section>
+  <div class="verdict">
+    <div class="yes">✓ 대체 가능합니다</div>
+    <p>삶은 렌틸 <b>1컵(198g)에 단백질 17.9g</b>. 계란 3개(18.9g)와 거의 같습니다. 류신도 1,295mg으로 근육 합성에 필요한 범위(700~3,000mg) 안에 들어와요. 다만 지켜야 할 조건이 세 개 있습니다.</p>
+    <div class="cond">
+      <div class="cd"><div class="n">조건 1</div><h4>밥이랑 같이 먹기</h4><p>렌틸은 메티오닌이 부족합니다. 소화율까지 반영한 단백질 품질 점수(PDCAAS)가 0.5~0.6 수준이에요. 쌀이 이걸 메꿔줍니다.</p></div>
+      <div class="cd"><div class="n">조건 2</div><h4>1.5컵을 넘기지 않기</h4><p>단백질을 더 채우려고 양을 늘리면 섬유질이 3배 빠르게 따라옵니다.</p></div>
+      <div class="cd"><div class="n">조건 3</div><h4>1/2컵부터 2주에 걸쳐</h4><p>처음부터 1컵을 먹으면 가스·복부팽만이 옵니다. 장이 적응할 시간이 필요해요.</p></div>
+    </div>
+  </div>
+</section>
+
+<section>
+  <div class="fix">
+    <div class="tt">먼저 제가 지난번에 잘못 말씀드린 것</div>
+    "운동 후 <b>30~60분 안에</b>"라고 했는데, 그렇게 급하지 않습니다. 국제스포츠영양학회(ISSN) 입장문에 따르면 <b>운동의 동화 작용은 최소 24시간 지속</b>되고, 섭취 시점은 개인이 편한 때로 정하면 된다고 봅니다.
+    타이밍보다 <b>하루 총량</b>이 훨씬 중요해요. 그러니 렌틸콩을 운동 직후에 억지로 밀어 넣을 필요는 없습니다 — 오히려 섬유질 때문에 속이 불편할 수 있어요.
+  </div>
+</section>
+
+<section>
+  <h2>1. 내 하루 목표부터</h2>
+  <p class="sub">체중을 바꾸면 아래 숫자가 전부 다시 계산됩니다.</p>
+  <div class="card">
+    <div class="calcrow">
+      <label for="w">체중</label>
+      <input type="number" id="w" value="54" min="35" max="120" step="0.5"> <span style="color:var(--muted);font-size:14px">kg</span>
+      <span style="font-size:12.5px;color:var(--faint)">· 근력운동 주 4회 기준 (1.4~1.6 g/kg)</span>
+    </div>
+    <div class="kpi">
+      <div class="k"><div class="kl">하루 단백질 목표</div><div class="kv" id="k1">76 ~ 86 g</div><div class="kn">운동 안 하는 사람 권장(KDRI 0.91 g/kg) = <span id="kmin">49</span> g</div></div>
+      <div class="k"><div class="kl">한 끼 목표</div><div class="kv" id="k2">20 ~ 25 g</div><div class="kn">하루 3~4번에 나눠서</div></div>
+      <div class="k"><div class="kl">한 끼 = 삶은 렌틸</div><div class="kv" id="k3">1.1 컵</div><div class="kn"><span id="k3g">222</span> g · <span id="k3k">258</span> kcal</div></div>
+      <div class="k"><div class="kl">그때 따라오는 섬유질</div><div class="kv" id="k4" style="color:var(--warn)">17.5 g</div><div class="kn">하루 권장(여 20 / 남 30g)의 상당량</div></div>
+    </div>
+    <div class="box cau"><b>주의</b> · 168cm·54kg은 BMI 19로 정상 범위의 아래쪽입니다. 렌틸은 포만감이 아주 커서 <b>총 칼로리가 오히려 줄어들 수 있어요.</b> 밥·올리브오일·견과류를 같이 챙겨 체중이 더 빠지지 않게 하세요.</div>
+  </div>
+</section>
+
+<section>
+  <h2>2. 단백질 20g을 채우려면 이만큼</h2>
+  <p class="sub">같은 20g이라도 따라오는 칼로리와 부피가 다릅니다.</p>
+  <div class="card">
+    <table>
+      <thead><tr><th>식품</th><th>필요한 양</th><th>칼로리</th><th>같이 따라오는 것</th></tr></thead>
+      <tbody>
+        <tr class="hl"><td>삶은 렌틸콩<span class="mini" style="width:100%"></span></td><td class="num">222 g<br><span style="color:var(--muted);font-size:12.5px">약 1과 1/8컵</span></td><td class="num">258 kcal</td><td>섬유질 17.5g · 철분 7.4mg · 엽산 402㎍</td></tr>
+        <tr><td>마른 렌틸콩(조리 전)</td><td class="num">80 g<br><span style="color:var(--muted);font-size:12.5px">약 1/2컵 조금 안 됨</span></td><td class="num">282 kcal</td><td>삶으면 약 220g이 됩니다</td></tr>
+        <tr><td>계란<span class="mini" style="width:72%"></span></td><td class="num">3.2 개<br><span style="color:var(--muted);font-size:12.5px">대란 기준</span></td><td class="num">227 kcal</td><td>비타민 D · 콜린 · 완전단백질</td></tr>
+        <tr><td>두부<span class="mini" style="width:94%"></span></td><td class="num">208 g<br><span style="color:var(--muted);font-size:12.5px">약 2/3 모</span></td><td class="num">202 kcal</td><td>칼슘 · 콩단백(완전단백질에 가까움)</td></tr>
+        <tr><td>그릭요거트(무가당)<span class="mini" style="width:90%"></span></td><td class="num">200 g</td><td class="num">120~200 kcal<br><span style="color:var(--muted);font-size:12.5px">무지방~일반</span></td><td>칼슘 · 류신 풍부 · 유산균</td></tr>
+        <tr><td>닭가슴살(생)<span class="mini" style="width:40%"></span></td><td class="num">89 g</td><td class="num">107 kcal</td><td>가장 적은 부피 · 가장 적은 칼로리</td></tr>
+      </tbody>
+    </table>
+    <div class="box key"><b>읽는 법</b> · 렌틸은 같은 단백질을 얻는 데 <b>가장 많이 먹어야 하는</b> 축입니다(222g). 대신 철분·엽산·섬유질이 따라오죠. 제품마다 함량 편차가 있으니 포장 라벨을 한 번 확인해보세요.</div>
+  </div>
+</section>
+
+<section>
+  <h2>3. 렌틸을 더 먹으면 무슨 일이 생기나</h2>
+  <p class="sub">단백질을 더 채우려고 양을 늘리면, 섬유질이 훨씬 빠르게 따라옵니다.</p>
+  <div class="chartcard">
+    <p class="ctitle">렌틸 섭취량별 하루 권장량 도달률</p>
+    <p class="csub">단백질 목표 80g(54kg 기준 1.4~1.6 g/kg의 가운데), 섬유질 기준 25g(성인 여 20 / 남 30g의 중간) 대비</p>
+    <div class="legend">
+      <span class="lg"><i class="sw" style="background:var(--series-1)"></i>단백질</span>
+      <span class="lg"><i class="sw" style="background:var(--series-2)"></i>식이섬유</span>
+    </div>
+    <div class="chartbox">
+      <svg class="chart" id="chart" viewBox="0 0 660 300" role="img"
+        aria-label="렌틸 섭취량이 늘수록 섬유질 도달률이 단백질보다 약 2.8배 빠르게 증가함을 보여주는 막대 그래프"></svg>
+      <div class="tip" id="tip"></div>
+    </div>
+  </div>
+  <div class="box cau"><b>핵심</b> · 2컵을 먹으면 단백질은 하루치의 45%인데 섬유질은 <b>125%</b>가 됩니다. 두 막대의 비율(약 2.8배)은 어느 양에서든 같아요 — 둘 다 무게에 비례하니까요. 다만 <b>기준을 뭘로 잡느냐에 따라 달라집니다</b>: 여성 기준(20g)이면 3.5배, 남성 기준(30g)이면 2.3배.<br><br>그리고 섬유질 31g이 그 자체로 위험한 건 아닙니다 — 한국인 영양소 섭취기준에 섬유질 <b>상한선은 없어요</b>. 진짜 문제는 <b>갑자기 늘리는 것</b>입니다. 안 먹던 사람이 하루아침에 30g을 먹으면 가스·복부팽만이 옵니다. 그래서 "렌틸만으로 하루 단백질 다 채우기"보다 <b>한두 끼에 나눠 넣는 쪽</b>을 권합니다.</div>
+  <details style="margin-top:10px">
+    <summary style="cursor:pointer;font-size:13.5px;font-weight:650;color:var(--muted)">숫자로 보기 (표)</summary>
+    <div class="card" style="margin-top:10px">
+      <table>
+        <thead><tr><th>양</th><th>무게</th><th>단백질</th><th>섬유질</th><th>칼로리</th><th>철분</th><th>류신</th></tr></thead>
+        <tbody id="tbl"></tbody>
+      </table>
+    </div>
+  </details>
+</section>
+
+<section>
+  <h2>4. 렌틸의 약점 3개, 이렇게 메꿉니다</h2>
+  <p class="sub">약점을 알고 먹으면 동물성 단백질과 큰 차이 없이 쓸 수 있어요.</p>
+  <div class="tips3">
+    <div class="t3"><div class="n">약점 1 · 메티오닌</div><h4>밥과 같이 먹으면 해결</h4><p>렌틸은 라이신은 넘치는데 <b>메티오닌·시스테인이 부족</b>합니다(소화율 반영 품질 점수 PDCAAS 0.5~0.6). 쌀은 정반대예요. 실제로 <b>렌틸+쌀밥</b> 조합이 렌틸 단독보다 메티오닌 이용률이 높다는 연구가 있습니다. 렌틸카레에 밥이 딸려 나오는 데는 이유가 있어요.</p></div>
+    <div class="t3"><div class="n">약점 2 · 류신</div><h4>유제품·계란을 조금만 얹기</h4><p>1컵에 류신 1,295mg — 필요 범위 안이지만 넉넉하진 않습니다. <b>그릭요거트 100g</b>을 더하면 약 2,300mg으로 확실해집니다. 계란 1개(류신 543mg)로는 1,840mg이라 살짝 모자라요.</p></div>
+    <div class="t3"><div class="n">약점 3 · 섬유질</div><h4>2주에 걸쳐 늘리기</h4><p>1~4일차 <b>1/2컵</b> → 5~10일차 <b>3/4컵</b> → 11일차부터 <b>1컵</b>. 물을 충분히 마시는 게 같이 중요해요. 섬유질만 늘고 물이 부족하면 오히려 변비가 옵니다.</p></div>
+  </div>
+  <div class="box good"><b>보너스</b> · 렌틸 1컵에 철분 6.6mg, 엽산 358㎍이 들어 있습니다. 다만 식물성 철분(비헴철)은 흡수율이 낮아요 — <b>파프리카·방울토마토·레몬처럼 비타민C가 있는 것과 같이</b> 먹으면 흡수가 올라갑니다. 커피·홍차는 조심하세요 — 연구에서 <b>식사와 함께 마셨을 때뿐 아니라 식후 1시간에 마셨을 때도</b> 철분 흡수가 8.1%→4.6%로 거의 반토막이 났습니다. <b>마시려면 식사 1시간 전</b>이 낫습니다(이때는 유의한 억제가 없었어요).</div>
+</section>
+
+<section>
+  <h2>5. 하루 식단 예시</h2>
+  <p class="sub">54kg 기준 하루 단백질 76~86g을 채우는 두 가지 방식. 렌틸을 어디에 넣느냐의 차이입니다.</p>
+  <div class="meals">
+    <div class="meal">
+      <h4>A · 렌틸을 저녁 한 끼에</h4>
+      <div class="mt">가장 현실적 · 섬유질 부담 적음</div>
+      <ul>
+        <li><span>아침 — 계란 3개 + 토스트</span><span>21g</span></li>
+        <li><span>점심 — 밥 + 닭가슴살 100g + 나물</span><span>27g</span></li>
+        <li><span>간식 — 그릭요거트 150g</span><span>15g</span></li>
+        <li><span>저녁 — 렌틸 1컵 + 현미밥 반 공기</span><span>21g</span></li>
+      </ul>
+      <div class="tot"><span>합계</span><span>단백질 84g · 섬유질 약 22g</span></div>
+    </div>
+    <div class="meal">
+      <h4>B · 렌틸을 두 끼에 나눠서</h4>
+      <div class="mt">채식 비중이 높을 때 · 물 넉넉히</div>
+      <ul>
+        <li><span>아침 — 렌틸 1/2컵 수프 + 계란 1개</span><span>15g</span></li>
+        <li><span>점심 — 렌틸 1컵 카레 + 밥 한 공기</span><span>22g</span></li>
+        <li><span>간식 — 그릭요거트 150g + 견과 20g</span><span>18g</span></li>
+        <li><span>저녁 — 두부 2/3모(200g) + 밥 + 나물</span><span>25g</span></li>
+      </ul>
+      <div class="tot"><span>합계</span><span>단백질 80g · 섬유질 약 30g</span></div>
+    </div>
+  </div>
+  <div class="box key"><b>B안을 고른다면</b> · 섬유질 30g은 적응 전이라면 많습니다. <b>4주차 이후에</b> 시도하시고, 물을 하루 1.5~2L는 드세요.</div>
+</section>
+
+<section>
+  <h2>6. 렌틸 조리 기본</h2>
+  <div class="card">
+    <table>
+      <tbody>
+        <tr><td style="width:130px;font-weight:650;color:var(--muted)">불리기</td><td><b>필요 없습니다.</b> 씻어서 바로 끓이면 돼요. (쪼갠 완두콩도 마찬가지입니다 — 렌틸만의 특권은 아니에요.)</td></tr>
+        <tr><td style="font-weight:650;color:var(--muted)">삶는 시간</td><td>브라운·그린 20~25분 (형태 유지, 샐러드용) / 레드·옐로우 12~15분 (죽처럼 풀어짐, 수프·카레용). 품종·원하는 식감에 따라 편차가 커서 15분쯤부터 맛보며 조절하세요.</td></tr>
+        <tr><td style="font-weight:650;color:var(--muted)">물 비율</td><td>렌틸 1 : 물 3. 뚜껑 열고 약불로.</td></tr>
+        <tr><td style="font-weight:650;color:var(--muted)">양 환산</td><td>마른 렌틸 <b>100g → 삶으면 약 260g</b> (부피로는 1컵 → 2.5컵)</td></tr>
+        <tr><td style="font-weight:650;color:var(--muted)">보관</td><td>삶아서 냉장 <b>3~4일</b> / 냉동 3개월. 1회분씩 소분해두면 훨씬 편합니다.</td></tr>
+        <tr><td style="font-weight:650;color:var(--muted)">가스 줄이기</td><td>삶을 때 첫 물은 버리고 새 물로 (가스를 만드는 올리고당이 일부 빠집니다). 그래도 불편하면 양을 줄이고 더 천천히 늘리는 게 확실합니다.</td></tr>
+      </tbody>
+    </table>
+  </div>
+</section>
+
+<footer>
+  <b>수치 출처</b>
+  <ul>
+    <li>삶은 렌틸 영양·아미노산 — USDA FoodData Central(FDC 172421), 1컵 198g: 단백질 17.9g / 섬유 15.6g / 230kcal / 철 6.6mg / 엽산 358㎍ / 류신 1,295mg / 메티오닌 152mg</li><li>단백질 품질 점수 — Nosworthy 외, <i>Food Science &amp; Nutrition</i> (2017): 조리된 렌틸 PDCAAS 0.54~0.63, DIAAS 0.50~0.58, 제한 아미노산은 메티오닌+시스테인</li><li>두부 — 국가표준식품성분표(농촌진흥청) 두부 100g당 단백질 9.6g / 97kcal. 제품별 8~10g으로 편차가 있습니다</li><li>커피와 철분 흡수 — Morck, Lynch &amp; Cook, <i>Am J Clin Nutr</i> (1983): 대조군 8.1% → 식사와 함께 4.6% → 식후 1시간 4.6% → 식전 1시간 6.3%(유의차 없음)</li>
+    <li>단백질 권장량 — 국제스포츠영양학회(ISSN) 입장문: 운동인 1.4~2.0 g/kg/일, 1회 0.25 g/kg 또는 20~40g, 1회 류신 700~3,000mg, 운동의 동화 효과는 최소 24시간 지속</li>
+    <li>식이섬유 — 한국인 영양소 섭취기준 충분섭취량: 성인 남 30g, 여 20g (2025 개정판에서도 19~49세 값은 동일). 상한섭취량은 설정되어 있지 않습니다</li>
+    <li>렌틸+쌀 조합의 메티오닌 이용률 — Journal of Nutrition (2022), 지표아미노산산화법 연구</li>
+  </ul>
+  <div style="margin-top:10px"><b>알아두실 점</b> — USDA의 마른 렌틸 항목과 삶은 렌틸 항목은 섬유질 수치가 서로 약 2배 차이가 납니다. 이 문서는 삶은 렌틸 항목(7.9g/100g)을 기준으로 했으니, 실제 섬유질은 이보다 적을 수도 있습니다. 식품 함량은 품종·제품·조리법에 따라 달라집니다. 신장질환·과민성대장증후군이 있거나 철분제를 복용 중이라면 콩류를 크게 늘리기 전에 의사와 상의하세요. 이 문서는 일반적인 정보이고 개인별 영양 처방을 대신하지 않습니다.</div>
+</footer>
+</div>
+
+<script>
+/* ---------- data ---------- */
+const CUP=198, P100=9.02, F100=7.9, K100=116, FE100=3.33, LEU100=654.0;
+const STEPS=[{lab:'1/2컵',c:0.5},{lab:'1컵',c:1},{lab:'1.5컵',c:1.5},{lab:'2컵',c:2}];
+const TP=80, TF=25;
+const rows = STEPS.map(s=>{
+  const g=CUP*s.c;
+  return {lab:s.lab, g:Math.round(g), p:+(P100*g/100).toFixed(1), f:+(F100*g/100).toFixed(1),
+          k:Math.round(K100*g/100), fe:+(FE100*g/100).toFixed(1), leu:Math.round(LEU100*g/100),
+          pp:Math.round(P100*g/100/TP*100), fp:Math.round(F100*g/100/TF*100)};
+});
+
+/* ---------- table ---------- */
+document.getElementById('tbl').innerHTML = rows.map(r=>
+ `<tr><td>${r.lab}</td><td class="num">${r.g}g</td><td class="num">${r.p}g</td>
+  <td class="num" style="color:var(--warn);font-weight:650">${r.f}g</td><td class="num">${r.k}</td>
+  <td class="num">${r.fe}mg</td><td class="num">${r.leu}mg</td></tr>`).join('');
+
+/* ---------- chart ---------- */
+const W=660,H=300,ML=44,MR=16,MT=14,MB=42;
+const PW=W-ML-MR, PH=H-MT-MB, YMAX=130;
+const y=v=>MT+PH-(v/YMAX)*PH;
+const gw=PW/rows.length, bw=Math.min(34,(gw-40)/2), gap=2;
+
+function rtop(x,yy,w,h,r){ r=Math.min(r,h); if(h<=0) return '';
+  return `M${x},${yy+h} L${x},${yy+r} Q${x},${yy} ${x+r},${yy} L${x+w-r},${yy} Q${x+w},${yy} ${x+w},${yy+r} L${x+w},${yy+h} Z`; }
+
+let s='';
+[0,25,50,75,100,125].forEach(v=>{
+  if(v===100) return;
+  s+=`<line class="axg" x1="${ML}" y1="${y(v)}" x2="${W-MR}" y2="${y(v)}"/>`;
+  s+=`<text class="axl" x="${ML-9}" y="${y(v)+4}" text-anchor="end">${v}%</text>`;
+});
+s+=`<line class="ref" x1="${ML}" y1="${y(100)}" x2="${W-MR}" y2="${y(100)}"/>`;
+s+=`<text class="axl" x="${ML-9}" y="${y(100)+4}" text-anchor="end">100%</text>`;
+s+=`<text class="refl" x="${ML+7}" y="${y(100)-7}" text-anchor="start">하루 권장선</text>`;
+s+=`<line class="axg" x1="${ML}" y1="${MT+PH}" x2="${W-MR}" y2="${MT+PH}"/>`;
+
+rows.forEach((r,i)=>{
+  const cx=ML+gw*i+gw/2;
+  const x1=cx-bw-gap/2, x2=cx+gap/2;
+  s+=`<path class="bar" data-i="${i}" data-s="p" d="${rtop(x1,y(r.pp),bw,MT+PH-y(r.pp),4)}" fill="var(--series-1)"/>`;
+  s+=`<path class="bar" data-i="${i}" data-s="f" d="${rtop(x2,y(r.fp),bw,MT+PH-y(r.fp),4)}" fill="var(--series-2)"/>`;
+  s+=`<text class="axl" x="${cx}" y="${MT+PH+18}" text-anchor="middle">${r.lab}</text>`;
+  s+=`<text class="axl" x="${cx}" y="${MT+PH+32}" text-anchor="middle" opacity=".72">${r.g}g</text>`;
+});
+const last=rows[rows.length-1], lcx=ML+gw*(rows.length-1)+gw/2;
+s+=`<text class="dlab" x="${lcx-bw/2-gap/2}" y="${y(last.pp)-8}" text-anchor="middle">${last.pp}%</text>`;
+s+=`<text class="dlab" x="${lcx+bw/2+gap/2}" y="${y(last.fp)-8}" text-anchor="middle" fill="var(--series-2)">${last.fp}%</text>`;
+document.getElementById('chart').innerHTML=s;
+
+/* tooltip */
+const tip=document.getElementById('tip'), box=document.querySelector('.chartbox');
+document.querySelectorAll('.bar').forEach(b=>{
+  const show=e=>{
+    const r=rows[+b.dataset.i], isP=b.dataset.s==='p';
+    tip.innerHTML=`<b>렌틸 ${r.lab} (${r.g}g)</b>
+      <div class="r"><i class="sw" style="background:var(--series-1)"></i>단백질 ${r.p}g · 목표의 ${r.pp}%</div>
+      <div class="r"><i class="sw" style="background:var(--series-2)"></i>식이섬유 ${r.f}g · 권장의 ${r.fp}%</div>
+      <div class="r" style="color:var(--muted);margin-top:3px">${r.k} kcal · 철분 ${r.fe}mg</div>`;
+    const br=box.getBoundingClientRect(), rr=b.getBoundingClientRect();
+    tip.style.opacity='1';
+    const tw=tip.offsetWidth;
+    let left=rr.left-br.left+rr.width/2-tw/2;
+    left=Math.max(0,Math.min(left,br.width-tw));
+    tip.style.left=left+'px';
+    tip.style.top=Math.max(0,rr.top-br.top-tip.offsetHeight-8)+'px';
+  };
+  b.addEventListener('mouseenter',show);
+  b.addEventListener('mousemove',show);
+  b.addEventListener('mouseleave',()=>tip.style.opacity='0');
+});
+
+/* ---------- calculator ---------- */
+const $=id=>document.getElementById(id);
+function calc(){
+  const w=Math.max(30,Math.min(150,+$('w').value||54));
+  const lo=Math.round(w*1.4), hi=Math.round(w*1.6), min=Math.round(w*0.91);
+  $('k1').textContent=`${lo} ~ ${hi} g`;
+  $('kmin').textContent=min;
+  const meal=Math.max(20,Math.round(w*0.25));
+  $('k2').textContent=`${meal} ~ ${meal+5} g`;
+  const g=meal/P100*100;
+  $('k3').textContent=(g/CUP).toFixed(1)+' 컵';
+  $('k3g').textContent=Math.round(g);
+  $('k3k').textContent=Math.round(K100*g/100);
+  $('k4').textContent=(F100*g/100).toFixed(1)+' g';
+}
+$('w').addEventListener('input',calc);
+calc();
+</script>
+</body>
+</html>
