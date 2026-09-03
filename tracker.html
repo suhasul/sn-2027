@@ -138,6 +138,27 @@
   .legend{display:flex;gap:14px;flex-wrap:wrap;margin-top:14px;font-size:12px;color:var(--muted)}
   .lg{display:flex;align-items:center;gap:6px}
   .sw{width:9px;height:9px;border-radius:3px;display:inline-block}
+  /* 세트 도트 */
+  .setrow2{display:flex;align-items:center;gap:6px;margin-top:5px;flex-wrap:wrap}
+  .sd{width:27px;height:27px;flex:0 0 auto;border-radius:8px;border:1.5px solid var(--line2);background:transparent;
+      color:var(--faint);font:inherit;font-size:11.5px;font-weight:800;cursor:pointer;padding:0;transition:.14s;
+      -webkit-tap-highlight-color:transparent}
+  .sd:active{transform:scale(.92)}
+  .sd[aria-pressed="true"]{background:var(--sc);border-color:var(--sc);color:#15140F}
+  .sst{font-size:12.5px;color:var(--sc);font-weight:650;margin-left:2px}
+  /* 휴식 타이머 바 */
+  .restbar{position:fixed;left:0;right:0;bottom:0;z-index:60;background:#1E1E1A;border-top:1px solid var(--line2);
+    padding:11px 14px calc(11px + env(safe-area-inset-bottom));display:flex;align-items:center;gap:12px;flex-wrap:wrap;
+    box-shadow:0 -8px 24px rgba(0,0,0,.5)}
+  .restbar[hidden]{display:none}
+  .rbt{font-size:30px;font-weight:800;font-variant-numeric:tabular-nums;letter-spacing:-.03em;color:var(--ok);min-width:64px;line-height:1}
+  .rbt small{font-size:13px;font-weight:700;color:var(--muted);margin-left:2px}
+  .rbn{flex:1;min-width:110px;font-size:12.5px;color:var(--muted);line-height:1.35}
+  .rbn b{color:var(--ink);display:block;font-size:13px}
+  .rbb{display:flex;gap:6px}
+  .rbb button{font:inherit;font-size:12.5px;font-weight:700;padding:8px 12px;border-radius:9px;
+    border:1px solid var(--line2);background:var(--card2);color:var(--ink);cursor:pointer}
+  .rbb button:active{opacity:.6}
   /* trend */
   .trend{display:flex;align-items:flex-end;gap:4px;height:120px;position:relative;padding:16px 0 0}
   .goal{position:absolute;left:0;right:0;border-top:1px solid var(--line2)}
@@ -240,6 +261,16 @@
       <span class="hint">A·B·C 세션 기준 (기본 5회). 위 KPI와 추이 그래프의 기준선이 됩니다.</span>
     </div>
     <div class="setrow">
+      <label for="setRest">세트 휴식</label>
+      <input type="number" id="setRest" min="10" max="180" step="5">
+      <span class="hint">세트를 체크하면 이 시간만큼 자동으로 휴식 타이머가 돕니다 (기본 45초). A·B 세션 권장 40~60초.</span>
+    </div>
+    <div class="setrow">
+      <label for="setVib">진동 알림</label>
+      <input type="checkbox" id="setVib" style="width:auto;transform:scale(1.35);margin-left:4px">
+      <span class="hint">세트·휴식이 끝날 때 진동합니다. 안드로이드만 지원되고 아이폰은 소리로만 알립니다.</span>
+    </div>
+    <div class="setrow">
       <label for="setWeight">체중 (kg)</label>
       <input type="number" id="setWeight" min="30" max="150" step="0.5" placeholder="54">
       <span class="hint">저장하면 <b>식단</b> 탭의 단백질 계산기가 이 값으로 자동 채워집니다.</span>
@@ -272,6 +303,15 @@
   <div class="note" id="warn"><b>주의</b> · 이 브라우저에서 저장 기능을 쓸 수 없습니다. 창을 닫으면 체크가 사라져요. 끝나기 전에 파일로 저장해두세요.</div>
 </section>
 
+<div class="restbar" id="restBar" hidden>
+  <div class="rbt"><span id="rbSec">45</span><small>초</small></div>
+  <div class="rbn"><b id="rbNext">휴식</b>다음 세트까지</div>
+  <div class="rbb">
+    <button id="rbAdd">+15초</button>
+    <button id="rbSkip">건너뛰기</button>
+  </div>
+</div>
+
 <footer>
   월 A · 화 B · 수 C · 목 A · 금 B · 토 걷기 30분 · 일 휴식 &nbsp;|&nbsp; 1~2주차(8/19~9/1)는 ★ 표시된 새 종목을 2세트로 줄여서 하세요.<br>
   관절에 찌르는 통증이나 어지럼증이 있으면 그날은 건너뛰세요. 빠진 날을 몰아서 두 개 하지 않는 게 더 중요합니다.
@@ -285,18 +325,18 @@ const WD=['일','월','화','수','목','금','토'];
 const SESS={
  A:{name:'하체 + 엉덩이',short:'A',col:'var(--A)',items:[
    {n:'워밍업 3분',d:'팔 크게 돌리기 60초 · 아주 천천히 스쿼트 10회 · 무릎 가슴으로 당기기 좌우 8회'},
-   {n:'고블릿 스쿼트',s:'3세트 × 12~15회',d:'덤벨을 가슴 앞에. 내려갈 때 3초, 올라올 때 1초'},
-   {n:'리버스 런지',s:'3세트 × 좌우 8~10회',d:'뒤로 내딛기. 상체는 계속 수직',nw:1},
-   {n:'싱글레그 힙 브리지',s:'3세트 × 좌우 10~12회',d:'맨 위에서 2초 정지. 어깨-엉덩이-무릎 일직선까지만',nw:1},
-   {n:'데드버그',s:'2세트 × 좌우 8회',d:'허리를 바닥에 붙인 채. 뜨면 범위를 줄이기',nw:1},
+   {n:'고블릿 스쿼트',sets:3,s:'3세트 × 12~15회',d:'덤벨을 가슴 앞에. 내려갈 때 3초, 올라올 때 1초'},
+   {n:'리버스 런지',sets:3,s:'3세트 × 좌우 8~10회',d:'뒤로 내딛기. 상체는 계속 수직',nw:1},
+   {n:'싱글레그 힙 브리지',sets:3,s:'3세트 × 좌우 10~12회',d:'맨 위에서 2초 정지. 어깨-엉덩이-무릎 일직선까지만',nw:1},
+   {n:'데드버그',sets:2,s:'2세트 × 좌우 8회',d:'허리를 바닥에 붙인 채. 뜨면 범위를 줄이기',nw:1},
    {n:'마무리 스트레칭 3분',d:'앞벅지 · 비둘기 자세 · 햄스트링 각 좌우 30초'}]},
  B:{name:'상체 밀기 + 당기기',short:'B',col:'var(--B)',items:[
    {n:'워밍업 3분',d:'어깨 앞뒤로 돌리기 각 15회 · 벽에 손 대고 가슴 열기 30초 · 고양이-소 10회'},
-   {n:'푸시업 (난이도 올린 버전)',s:'3세트 × 10~15회',d:'디클라인(발 올리기) / 다이아몬드 / 내려갈 때 4초 중 하나'},
-   {n:'덤벨 원암 로우',s:'3세트 × 좌우 12~15회',d:'날개뼈를 뒷주머니로. 맨 위에서 2초 정지 필수',nw:1},
-   {n:'프론 Y-T-W',s:'2세트 × 각 8회',d:'엎드려 팔을 Y→T→W로. 목 말고 날개뼈 사이에 힘',nw:1},
-   {n:'덤벨 컬',s:'2세트 × 좌우 12~15회',d:'팔꿈치를 옆구리에 고정. 내릴 때 3초'},
-   {n:'플랭크',s:'2세트 × 45~60초',d:'엉덩이가 솟지 않게. 무너지기 직전에 끝내기',nw:1},
+   {n:'푸시업 (난이도 올린 버전)',sets:3,s:'3세트 × 10~15회',d:'디클라인(발 올리기) / 다이아몬드 / 내려갈 때 4초 중 하나'},
+   {n:'덤벨 원암 로우',sets:3,s:'3세트 × 좌우 12~15회',d:'날개뼈를 뒷주머니로. 맨 위에서 2초 정지 필수',nw:1},
+   {n:'프론 Y-T-W',sets:2,s:'2세트 × 각 8회',d:'엎드려 팔을 Y→T→W로. 목 말고 날개뼈 사이에 힘',nw:1},
+   {n:'덤벨 컬',sets:2,s:'2세트 × 좌우 12~15회',d:'팔꿈치를 옆구리에 고정. 내릴 때 3초'},
+   {n:'플랭크',sets:2,s:'2세트 × 45~60초',d:'엉덩이가 솟지 않게. 무너지기 직전에 끝내기',nw:1},
    {n:'마무리 스트레칭 3분',d:'문틀 가슴 스트레칭 · 어깨 뒤 · 목 옆 각 좌우 20~30초'}]},
  C:{name:'무소음 유산소 서킷',short:'C',col:'var(--C)',circuit:1,items:[
    {n:'워밍업 2분',d:'제자리 걷기 + 팔 돌리기 90초 · 상체 좌우 비틀기 20회'},
@@ -336,12 +376,24 @@ const EXTRA={
 
 /* ================= state ================= */
 const KEY='ht-tracker-v1';
-let store={done:{},extra:{},settings:{}}, storageOK=true;
+let store={done:{},extra:{},settings:{},sets:{},time:{}}, storageOK=true;
 let exOpen=false;
-try{ const s=localStorage.getItem(KEY); if(s) store=JSON.parse(s)||{done:{}}; if(!store.done) store.done={}; if(!store.extra) store.extra={}; if(!store.settings) store.settings={}; }
+try{ const s=localStorage.getItem(KEY); if(s) store=JSON.parse(s)||{done:{}}; if(!store.done) store.done={}; if(!store.extra) store.extra={}; if(!store.settings) store.settings={}; if(!store.sets) store.sets={}; if(!store.time) store.time={}; }
 catch(e){ storageOK=false; }
 try{ localStorage.setItem(KEY+'-t','1'); localStorage.removeItem(KEY+'-t'); }catch(e){ storageOK=false; }
 function persist(){ try{ localStorage.setItem(KEY, JSON.stringify(store)); }catch(e){ storageOK=false; } syncBackup(); }
+
+/* ====== 세트 · 시간 · 진동 · 화면잠금 방지 ====== */
+function totSets(s,i){ const it=sessOf(s).items[i]; return (it&&it.sets)||1; }
+function setsOf(s,i){ const m=store.sets[s]||{}; return +m[i]||0; }
+function restSec(){ return Math.max(10, Math.min(180, +store.settings.restSec||45)); }
+function vibOn(){ return store.settings.vibrate!==false; }
+function vib(p){ if(!vibOn()) return; try{ navigator.vibrate && navigator.vibrate(p); }catch(e){} }
+let wl=null;
+async function wakeOn(){ try{ if('wakeLock' in navigator && !wl){ wl=await navigator.wakeLock.request('screen'); wl.addEventListener('release',()=>{wl=null;}); } }catch(e){} }
+function wakeOff(){ try{ if(wl){ wl.release(); wl=null; } }catch(e){} }
+function touchTime(d){ const t=store.time[d]||{}; const now=Date.now(); if(!t.start) t.start=now; t.end=now; store.time[d]=t; }
+function minutesOf(d){ const t=store.time[d]; if(!t||!t.start||!t.end) return 0; return Math.round((t.end-t.start)/60000); }
 
 /* ================= dates ================= */
 function iso(d){ return d.getFullYear()+'-'+String(d.getMonth()+1).padStart(2,'0')+'-'+String(d.getDate()).padStart(2,'0'); }
@@ -381,6 +433,7 @@ function renderDay(){
   if(sel===TODAY) chips=`<span class="chip today">오늘</span>`+chips;
   if(isAdapt(sel)&&!S.rest) chips+=`<span class="chip adapt">적응기 · ★는 2세트</span>`;
   if(isDone(sel)) chips+=`<span class="chip today">완료 ✓</span>`;
+  if(!S.rest && store.time[sel] && isDone(sel)) chips+=`<span class="chip">소요 ${Math.max(1,minutesOf(sel))}분</span>`;
 
   let body;
   if(S.rest){
@@ -389,10 +442,15 @@ function renderDay(){
     const pct=it.length?Math.round(ck.length/it.length*100):0;
     body=`<div class="prog"><div class="ptrack"><i style="width:${pct}%"></i></div><div class="ppct">${ck.length} / ${it.length}</div></div>
       <ul class="cl">${it.map((x,i)=>{
-        const on=ck.includes(i);
+        const on=ck.includes(i), N=totSets(sel,i), got=on?N:setsOf(sel,i);
+        const dots = N>1
+          ? `<div class="setrow2">${Array.from({length:N},(_,k)=>
+              `<button class="sd" data-i="${i}" data-s="${k+1}" aria-pressed="${got>=k+1}" aria-label="${x.n} ${k+1}세트">${k+1}</button>`).join('')}
+             <span class="sst">${x.s||''}</span></div>`
+          : (x.s?`<div class="st">${x.s}</div>`:'');
         return `<li class="${on?'on':''}"><button class="cb" data-i="${i}" aria-pressed="${on}" aria-label="${x.n} 완료">${CK}</button>
           <div style="flex:1"><div class="nm">${x.n}${x.nw?'<span class="star">★ 새 종목</span>':''}</div>
-          ${x.s?`<div class="st">${x.s}</div>`:''}<div class="dt">${x.d}</div></div></li>`;}).join('')}</ul>
+          ${dots}<div class="dt">${x.d}</div></div></li>`;}).join('')}</ul>
       <button class="donebtn ${isDone(sel)?'on':''}" id="allBtn">${isDone(sel)?'✓ 완료 처리됨 — 누르면 해제':'전부 완료로 표시'}</button>`;
     body+='';
     if(S.circuit) body+=`<details class="tm"><summary>▶ 인터벌 타이머 열기 (30초 / 15초)</summary>
@@ -418,16 +476,38 @@ function renderDay(){
     store.extra[sel]=a; if(!a.length) delete store.extra[sel];
     persist(); renderAll();
   }));
+  card.querySelectorAll('.sd').forEach(b=>b.addEventListener('click',()=>{
+    const i=+b.dataset.i, s=+b.dataset.s, N=totSets(sel,i);
+    const cur = checked(sel).includes(i) ? N : setsOf(sel,i);
+    const next = (cur===s) ? s-1 : s;          // 같은 칸을 다시 누르면 취소
+    const m = store.sets[sel] || {};
+    if(next>0) m[i]=next; else delete m[i];
+    if(Object.keys(m).length) store.sets[sel]=m; else delete store.sets[sel];
+    // 전부 채우면 종목 완료로 승격
+    const a=checked(sel).slice(), p=a.indexOf(i);
+    if(next>=N){ if(p<0) a.push(i); } else if(p>=0) a.splice(p,1);
+    store.done[sel]=a; if(!a.length) delete store.done[sel];
+    touchTime(sel); persist();
+    if(next>cur){ vib(140); if(next<N || !isDone(sel)) startRest(nextLabel(i,next,N)); }
+    renderAll();
+  }));
   card.querySelectorAll('.cb').forEach(b=>b.addEventListener('click',()=>{
     const i=+b.dataset.i; const a=checked(sel).slice();
-    const p=a.indexOf(i); p>=0?a.splice(p,1):a.push(i);
+    const p=a.indexOf(i); const N=totSets(sel,i);
+    const m=store.sets[sel]||{};
+    if(p>=0){ a.splice(p,1); delete m[i]; } else { a.push(i); m[i]=N; }
+    if(Object.keys(m).length) store.sets[sel]=m; else delete store.sets[sel];
     store.done[sel]=a; if(!a.length) delete store.done[sel];
-    persist(); renderAll();
+    touchTime(sel); persist(); renderAll();
   }));
   const ab=document.getElementById('allBtn');
   if(ab) ab.addEventListener('click',()=>{
-    if(isDone(sel)) delete store.done[sel];
-    else store.done[sel]=it.map((_,i)=>i);
+    if(isDone(sel)){ delete store.done[sel]; delete store.sets[sel]; }
+    else{
+      store.done[sel]=it.map((_,i)=>i);
+      const m={}; it.forEach((_,i)=>{ m[i]=totSets(sel,i); }); store.sets[sel]=m;
+      touchTime(sel);
+    }
     persist(); renderAll();
   });
   document.getElementById('prevD').addEventListener('click',()=>{ const x=parse(sel); x.setDate(x.getDate()-1); if(iso(x)>=START){sel=iso(x); renderAll();} });
@@ -544,7 +624,7 @@ document.getElementById('bkFile').addEventListener('change',async e=>{
   try{
     const o=JSON.parse(await f.text());
     if(!o||typeof o!=='object') throw 0;
-    store={done:o.done||{}, extra:o.extra||{}, settings:o.settings||{}};
+    store={done:o.done||{}, extra:o.extra||{}, settings:o.settings||{}, sets:o.sets||{}, time:o.time||{}};
     persist(); recalcDates(); fillSettings(); renderAll();
     bkMsg('불러왔습니다 ✓');
   }catch(err){ bkMsg('파일을 읽을 수 없어요',false); }
@@ -565,25 +645,27 @@ document.getElementById('bkLoad').addEventListener('click',()=>{
     setTimeout(()=>{ t.setAttribute('readonly',''); btn.textContent='코드 붙여넣어 복원'; btn.onclick=null; location.reload(); },1400); };
 });
 document.getElementById('bkReset').addEventListener('click',e=>{
-  if(e.target.dataset.c){ store={done:{},extra:{},settings:store.settings||{}}; persist(); renderAll(); e.target.textContent='전체 초기화'; delete e.target.dataset.c; return; }
+  if(e.target.dataset.c){ store={done:{},extra:{},settings:store.settings||{},sets:{},time:{}}; persist(); renderAll(); e.target.textContent='전체 초기화'; delete e.target.dataset.c; return; }
   e.target.dataset.c='1'; e.target.textContent='정말 지울까요? 한 번 더';
   setTimeout(()=>{ if(e.target.dataset.c){ e.target.textContent='전체 초기화'; delete e.target.dataset.c; } },3500);
 });
 
 /* ================= timer ================= */
 const CIR=['스텝 잭','스쿼트 + 펀치','마운틴 클라이머','자전거 크런치','슬로우 버피','힙 브리지 마치'];
-let tI=0,tR=1,tP='work',tL=30,tId=null;
+let tI=0,tR=1,tP='work',tL=30,tId=null,tEnd=0;
+function phase(sec){ tL=sec; tEnd=Date.now()+sec*1000; }
 function initTimer(){
-  tI=0;tR=1;tP='work';tL=30;if(tId){clearInterval(tId);tId=null;}
+  tI=0;tR=1;tP='work';phase(30);if(tId){clearInterval(tId);tId=null;}
   paint();
   document.getElementById('tStart').addEventListener('click',e=>{
-    if(tId){clearInterval(tId);tId=null;e.target.textContent='시작';return;}
-    if(tR>3){tI=0;tR=1;tP='work';tL=30;}
-    tId=setInterval(tick,1000); e.target.textContent='일시정지';
+    if(tId){clearInterval(tId);tId=null;e.target.textContent='시작';wakeOff();return;}
+    if(tR>3){tI=0;tR=1;tP='work';}
+    phase(tL>0?tL:30);
+    tId=setInterval(tick,250); e.target.textContent='일시정지'; wakeOn();
   });
   document.getElementById('tReset').addEventListener('click',()=>{
     if(tId){clearInterval(tId);tId=null;const b=document.getElementById('tStart'); if(b)b.textContent='시작';}
-    tI=0;tR=1;tP='work';tL=30;paint();
+    tI=0;tR=1;tP='work';phase(30);wakeOff();paint();
   });
 }
 function beep(f,d){ try{const A=window.AudioContext||window.webkitAudioContext; if(!A)return;
@@ -599,16 +681,56 @@ function paint(){
   m.textContent=fin?'수고하셨어요 — 3라운드 끝':`라운드 ${tR} / 3 · ${CIR[tI]}${tP==='rest'?' 다음':''}`;
 }
 function tick(){
-  tL--;
-  if(tL<=0){
-    if(tP==='work'){tP='rest';tL=15;beep(660,.15);}
-    else{ tI++; if(tI>=CIR.length){tI=0;tR++;}
-      if(tR>3){clearInterval(tId);tId=null;tL=0;beep(880,.45);
-        const b=document.getElementById('tStart'); if(b)b.textContent='시작'; paint(); return;}
-      tP='work';tL=30;beep(880,.15);}
-  } else if(tL<=3){ beep(520,.06); }
+  const left=Math.max(0,Math.ceil((tEnd-Date.now())/1000));
+  if(left===tL) return;
+  tL=left;
+  if(tL>0){ if(tL<=3) beep(520,.06); paint(); return; }
+  if(tP==='work'){ tP='rest'; phase(15); beep(660,.15); vib(130); }
+  else{
+    tI++; if(tI>=CIR.length){tI=0;tR++;}
+    if(tR>3){ clearInterval(tId); tId=null; tL=0; beep(880,.45); vib([250,120,250]); wakeOff();
+      const b=document.getElementById('tStart'); if(b)b.textContent='시작'; paint(); return; }
+    tP='work'; phase(30); beep(880,.15); vib(190);
+  }
   paint();
 }
+
+/* ================= 세트 휴식 타이머 ================= */
+let rest={endsAt:0,id:null,label:''};
+function nextLabel(i,doneSets,N){
+  const items=sessOf(sel).items;
+  if(doneSets<N) return items[i].n+' '+(doneSets+1)+'세트';
+  for(let k=i+1;k<items.length;k++){ if(!checked(sel).includes(k)) return items[k].n; }
+  return '마무리';
+}
+function startRest(label){
+  rest.label=label||'다음 세트';
+  rest.endsAt=Date.now()+restSec()*1000;
+  const bar=document.getElementById('restBar');
+  document.getElementById('rbNext').textContent=rest.label;
+  bar.hidden=false;
+  wakeOn();
+  if(rest.id) clearInterval(rest.id);
+  rest.id=setInterval(restTick,250);
+  restTick();
+}
+function restTick(){
+  const left=Math.max(0,Math.ceil((rest.endsAt-Date.now())/1000));
+  const el=document.getElementById('rbSec'); if(el) el.textContent=left;
+  if(left<=0) endRest(true);
+}
+function endRest(rang){
+  if(rest.id){ clearInterval(rest.id); rest.id=null; }
+  const bar=document.getElementById('restBar'); if(bar) bar.hidden=true;
+  if(rang){ beep(760,.22); vib([220,110,220]); }
+  if(!tId) wakeOff();
+}
+document.addEventListener('DOMContentLoaded',()=>{});
+document.addEventListener('visibilitychange',()=>{
+  if(document.hidden) return;
+  if(rest.id) restTick();
+  if(rest.id||tId) wakeOn();
+});
 
 /* ================= 주간 추이 ================= */
 function weekStats(){
@@ -645,9 +767,12 @@ function renderTrend(){
 /* ================= 설정 ================= */
 function fillSettings(){
   const a=document.getElementById('setStart'), b=document.getElementById('setGoal'), c=document.getElementById('setWeight');
+  const r=document.getElementById('setRest'), v=document.getElementById('setVib');
   if(a) a.value=START;
   if(b) b.value=goal();
   if(c) c.value=store.settings.weight||'';
+  if(r) r.value=restSec();
+  if(v) v.checked=vibOn();
 }
 function bindSettings(){
   const a=document.getElementById('setStart'), b=document.getElementById('setGoal'), c=document.getElementById('setWeight');
@@ -659,6 +784,9 @@ function bindSettings(){
     renderAll();
   });
   b.addEventListener('change',()=>{ store.settings.weeklyGoal=Math.max(1,Math.min(7,+b.value||5)); b.value=goal(); persist(); renderAll(); });
+  const r=document.getElementById('setRest'), vv=document.getElementById('setVib');
+  r.addEventListener('change',()=>{ store.settings.restSec=Math.max(10,Math.min(180,+r.value||45)); r.value=restSec(); persist(); });
+  vv.addEventListener('change',()=>{ store.settings.vibrate=vv.checked; persist(); if(vv.checked) vib(120); });
   c.addEventListener('change',()=>{
     const v=parseFloat(c.value);
     if(v>=30&&v<=150){ store.settings.weight=v; try{ localStorage.setItem('ht-weight',String(v)); }catch(e){} }
@@ -699,6 +827,8 @@ document.querySelector('#ovTable tbody').innerHTML=[1,2,3,4,5,6,0].map(d=>{
     <td style="color:var(--muted)">${OVGAP[d]}</td>
     <td class="x">${E.items.map(x=>`${x.n} <em>${x.s}</em>`).join('')}</td></tr>`;
 }).join('');
+document.getElementById('rbSkip').addEventListener('click',()=>endRest(false));
+document.getElementById('rbAdd').addEventListener('click',()=>{ rest.endsAt+=15000; restTick(); });
 syncBackup(); fillSettings(); bindSettings(); renderAll();
 </script>
 </body>

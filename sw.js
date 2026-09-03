@@ -1,5 +1,5 @@
 /* 홈트 앱 서비스 워커 — 홈 화면 설치와 빠른 재실행을 위한 캐시 */
-const VERSION = 'homefit-v3';
+const VERSION = 'homefit-v4';
 const ASSETS = [
   './',
   './index.html',
