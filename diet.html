@@ -358,6 +358,9 @@ function calc(){
   $('k4').textContent=(F100*g/100).toFixed(1)+' g';
 }
 $('w').addEventListener('input',calc);
+$('w').addEventListener('change',()=>{ try{ localStorage.setItem('ht-weight',String(parseFloat($('w').value)||54)); }catch(e){} });
+/* 체크표 설정에 체중을 저장했으면 그 값으로 시작 */
+try{ const w=parseFloat(localStorage.getItem('ht-weight')); if(w>=30&&w<=150) $('w').value=w; }catch(e){}
 calc();
 </script>
 </body>

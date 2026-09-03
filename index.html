@@ -84,7 +84,8 @@ nav.innerHTML=TABS.map(t=>
  `<button role="tab" data-id="${t.id}" aria-selected="false" aria-label="${t.label}">
     <svg viewBox="0 0 24 24" aria-hidden="true">${t.icon}</svg><span>${t.label}</span></button>`).join('');
 
-function show(id, first){
+function show(id, opts){
+  opts=opts||{};
   if(cur===id) return;
   const t=TABS.find(x=>x.id===id); if(!t) return;
   if(!frames[id]){
@@ -95,28 +96,32 @@ function show(id, first){
         const d=f.contentDocument;
         if(d&&d.body) d.body.style.paddingBottom='calc(env(safe-area-inset-bottom) + 8px)';
       }catch(e){}
-      if(first) boot.classList.add('gone');
+      if(opts.first) boot.classList.add('gone');
     });
     scr.appendChild(f); frames[id]=f;
   }
   Object.entries(frames).forEach(([k,f])=>f.classList.toggle('on',k===id));
   nav.querySelectorAll('button').forEach(b=>b.setAttribute('aria-selected',String(b.dataset.id===id)));
   cur=id;
-  try{ history.replaceState(null,'','#'+id); }catch(e){}
+  try{
+    if(opts.push) history.pushState({tab:id},'','#'+id);
+    else history.replaceState({tab:id},'','#'+id);
+  }catch(e){}
   try{ localStorage.setItem('ht-app-tab',id); }catch(e){}
 }
-nav.addEventListener('click',e=>{ const b=e.target.closest('button'); if(b) show(b.dataset.id); });
+nav.addEventListener('click',e=>{ const b=e.target.closest('button'); if(b) show(b.dataset.id,{push:true}); });
 
 let start=(location.hash||'').replace('#','');
 if(!TABS.some(t=>t.id===start)){
   try{ start=localStorage.getItem('ht-app-tab')||''; }catch(e){ start=''; }
 }
 if(!TABS.some(t=>t.id===start)) start='tracker';
-show(start,true);
+show(start,{first:true});
 setTimeout(()=>boot.classList.add('gone'),2500);
 
-window.addEventListener('hashchange',()=>{
-  const id=(location.hash||'').replace('#','');
+/* 안드로이드 뒤로가기 / 브라우저 뒤로·앞으로 = 이전 탭으로 */
+window.addEventListener('popstate',e=>{
+  const id=(e.state&&e.state.tab)||(location.hash||'').replace('#','');
   if(TABS.some(t=>t.id===id)) show(id);
 });
 

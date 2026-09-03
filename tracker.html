@@ -138,6 +138,29 @@
   .legend{display:flex;gap:14px;flex-wrap:wrap;margin-top:14px;font-size:12px;color:var(--muted)}
   .lg{display:flex;align-items:center;gap:6px}
   .sw{width:9px;height:9px;border-radius:3px;display:inline-block}
+  /* trend */
+  .trend{display:flex;align-items:flex-end;gap:4px;height:120px;position:relative;padding:16px 0 0}
+  .goal{position:absolute;left:0;right:0;border-top:1px solid var(--line2)}
+  .goal span{position:absolute;right:0;top:-15px;font-size:10px;font-weight:700;color:var(--faint);background:var(--card);padding:0 4px}
+  .tw{flex:1;min-width:0;display:flex;flex-direction:column;align-items:center;justify-content:flex-end;height:100%;gap:4px}
+  .tb{width:100%;max-width:24px;background:var(--XB);border-radius:4px 4px 0 0;min-height:3px}
+  .tw.cur .tb{background:var(--ok)}
+  .tw.future .tb{background:#26251F}
+  .tl{font-size:9.5px;color:var(--faint);font-variant-numeric:tabular-nums;white-space:nowrap}
+  .tv{font-size:10px;font-weight:800;color:var(--ink);font-variant-numeric:tabular-nums}
+  .tw.future .tv{color:transparent}
+  /* settings */
+  .setrow{display:flex;align-items:center;gap:11px;padding:12px 0;border-bottom:1px solid var(--line);flex-wrap:wrap}
+  .setrow:last-of-type{border-bottom:0}
+  .setrow label{font-size:13.5px;font-weight:650;min-width:88px}
+  .setrow input{font:inherit;font-size:14.5px;padding:7px 10px;border:1px solid var(--line2);border-radius:9px;background:var(--bg);color:var(--ink);width:152px}
+  .setrow .hint{font-size:12px;color:var(--faint);flex:1;min-width:160px}
+  .grad{background:linear-gradient(180deg,rgba(95,206,134,.10),transparent);border:1px solid rgba(95,206,134,.35);border-radius:16px;padding:19px;margin-top:14px}
+  .grad h3{margin:0 0 4px;font-size:18px;color:var(--ok)}
+  .grad p{margin:0 0 10px;font-size:13.8px;color:var(--muted)}
+  .grad ul{margin:0;padding-left:17px;font-size:13.5px}
+  .grad li{margin-bottom:5px}
+  .msg{font-size:12.5px;color:var(--ok);font-weight:650;margin-left:auto}
   /* backup */
   .bk textarea{width:100%;height:78px;background:var(--bg);border:1px solid var(--line);border-radius:10px;color:var(--muted);
     font-family:ui-monospace,SFMono-Regular,Menlo,monospace;font-size:11.5px;padding:10px;resize:vertical}
@@ -168,8 +191,8 @@
 </section>
 
 <section>
-  <h2>12주 달력</h2>
-  <p class="sub">눌러서 그날로 이동. 점선 테두리는 지나갔는데 체크 안 된 날이에요.</p>
+  <h2 id="calTitle">달력</h2>
+  <p class="sub">눌러서 그날로 이동. 점선 테두리는 지나갔는데 체크 안 된 날이에요. 오늘 이후로 항상 4주가 미리 보입니다.</p>
   <div class="cal">
     <div class="hdrow"><div></div><div>월</div><div>화</div><div>수</div><div>목</div><div>금</div><div>토</div><div>일</div></div>
     <div id="cal"></div>
@@ -180,6 +203,16 @@
     <span class="lg"><i class="sw" style="background:var(--C)"></i>C 유산소 서킷</span>
     <span class="lg"><i class="sw" style="background:var(--W)"></i>걷기 30분</span>
     <span class="lg"><i class="sw" style="background:var(--R)"></i>휴식</span>
+    <button class="tbtn" id="moreWeeks" style="margin-left:auto;font-size:12px;padding:6px 12px">＋4주 더 보기</button>
+  </div>
+  <div id="graduate"></div>
+</section>
+
+<section>
+  <h2>주간 달성 추이</h2>
+  <p class="sub">A·B·C 세션만 셉니다. 가로선이 주간 목표예요.</p>
+  <div class="card">
+    <div class="trend" id="trend"></div>
   </div>
 </section>
 
@@ -192,16 +225,51 @@
   <div class="note" style="border-left-color:var(--XB)"><b style="color:var(--XB)">지키실 것 세 가지</b> · ①본 세션 <b>뒤에</b> 붙이세요, 앞이 아니라. ②새 동작은 <b>한 번에 하나씩</b> 늘리세요. ③피곤한 날은 추가를 버리세요 — 본 루틴 5회가 추가 운동보다 훨씬 중요합니다.</div>
 </section>
 
+<section>
+  <h2>설정</h2>
+  <p class="sub">바꾸면 바로 반영됩니다. 이미 체크한 기록은 날짜로 저장돼 있어서 지워지지 않아요.</p>
+  <div class="card">
+    <div class="setrow">
+      <label for="setStart">시작일</label>
+      <input type="date" id="setStart">
+      <span class="hint">쉬었다가 다시 시작할 때 오늘 날짜로 바꾸세요. 요일 로테이션이 여기부터 다시 셉니다.</span>
+    </div>
+    <div class="setrow">
+      <label for="setGoal">주간 목표</label>
+      <input type="number" id="setGoal" min="1" max="7" step="1">
+      <span class="hint">A·B·C 세션 기준 (기본 5회). 위 KPI와 추이 그래프의 기준선이 됩니다.</span>
+    </div>
+    <div class="setrow">
+      <label for="setWeight">체중 (kg)</label>
+      <input type="number" id="setWeight" min="30" max="150" step="0.5" placeholder="54">
+      <span class="hint">저장하면 <b>식단</b> 탭의 단백질 계산기가 이 값으로 자동 채워집니다.</span>
+    </div>
+  </div>
+</section>
+
 <section class="bk">
   <h2>기록 백업</h2>
-  <p class="sub">기기를 바꾸거나 브라우저 데이터를 지우면 기록이 사라집니다. 가끔 아래 코드를 복사해서 메모장에 붙여두세요.</p>
-  <textarea id="bkText" readonly></textarea>
-  <div class="bkrow">
-    <button class="tbtn" id="bkCopy">코드 복사</button>
-    <button class="tbtn" id="bkLoad">코드 붙여넣어 복원</button>
-    <button class="tbtn" id="bkReset" style="margin-left:auto">전체 초기화</button>
+  <p class="sub">기록은 이 브라우저에만 저장됩니다. 기기를 바꾸거나 브라우저 데이터를 지우면 사라져요. 가끔 파일로 내려받아 두세요.</p>
+  <div class="card">
+    <div class="bkrow">
+      <button class="tbtn" id="bkSave" style="border-color:var(--ok);color:var(--ok)">파일로 저장</button>
+      <button class="tbtn" id="bkOpen">파일에서 불러오기</button>
+      <input type="file" id="bkFile" accept="application/json,.json" hidden>
+      <span class="msg" id="bkMsg"></span>
+    </div>
+    <details style="margin-top:13px">
+      <summary style="cursor:pointer;font-size:12.5px;font-weight:650;color:var(--muted)">파일이 안 될 때 — 코드로 백업하기</summary>
+      <textarea id="bkText" readonly style="margin-top:9px"></textarea>
+      <div class="bkrow">
+        <button class="tbtn" id="bkCopy">코드 복사</button>
+        <button class="tbtn" id="bkLoad">코드 붙여넣어 복원</button>
+      </div>
+    </details>
+    <div class="bkrow" style="margin-top:14px;padding-top:13px;border-top:1px solid var(--line)">
+      <button class="tbtn" id="bkReset" style="border-color:#5A3A3A;color:#E29A9A">전체 초기화</button>
+    </div>
   </div>
-  <div class="note" id="warn"><b>주의</b> · 이 브라우저에서 저장 기능을 쓸 수 없습니다. 창을 닫으면 체크가 사라져요. 끝날 때 위 코드를 꼭 복사해두세요.</div>
+  <div class="note" id="warn"><b>주의</b> · 이 브라우저에서 저장 기능을 쓸 수 없습니다. 창을 닫으면 체크가 사라져요. 끝나기 전에 파일로 저장해두세요.</div>
 </section>
 
 <footer>
@@ -212,7 +280,7 @@
 
 <script>
 /* ================= data ================= */
-const START='2026-08-19';
+const DEFAULT_START='2026-08-19';
 const WD=['일','월','화','수','목','금','토'];
 const SESS={
  A:{name:'하체 + 엉덩이',short:'A',col:'var(--A)',items:[
@@ -268,9 +336,9 @@ const EXTRA={
 
 /* ================= state ================= */
 const KEY='ht-tracker-v1';
-let store={done:{},extra:{}}, storageOK=true;
+let store={done:{},extra:{},settings:{}}, storageOK=true;
 let exOpen=false;
-try{ const s=localStorage.getItem(KEY); if(s) store=JSON.parse(s)||{done:{}}; if(!store.done) store.done={}; if(!store.extra) store.extra={}; }
+try{ const s=localStorage.getItem(KEY); if(s) store=JSON.parse(s)||{done:{}}; if(!store.done) store.done={}; if(!store.extra) store.extra={}; if(!store.settings) store.settings={}; }
 catch(e){ storageOK=false; }
 try{ localStorage.setItem(KEY+'-t','1'); localStorage.removeItem(KEY+'-t'); }catch(e){ storageOK=false; }
 function persist(){ try{ localStorage.setItem(KEY, JSON.stringify(store)); }catch(e){ storageOK=false; } syncBackup(); }
@@ -278,9 +346,19 @@ function persist(){ try{ localStorage.setItem(KEY, JSON.stringify(store)); }catc
 /* ================= dates ================= */
 function iso(d){ return d.getFullYear()+'-'+String(d.getMonth()+1).padStart(2,'0')+'-'+String(d.getDate()).padStart(2,'0'); }
 function parse(s){ const [y,m,d]=s.split('-').map(Number); return new Date(y,m-1,d); }
-const startD=parse(START);
-const now=new Date(); const TODAY=iso(new Date(now.getFullYear(),now.getMonth(),now.getDate()));
-const todayD=parse(TODAY);
+let START, startD, TODAY, todayD, WEEKS, LAST, lastD;
+function nowISO(){ const n=new Date(); return iso(new Date(n.getFullYear(),n.getMonth(),n.getDate())); }
+function goal(){ return Math.max(1, Math.min(7, +(store.settings.weeklyGoal)||5)); }
+function recalcDates(){
+  START=(store.settings.start)||DEFAULT_START;
+  startD=parse(START);
+  TODAY=nowISO(); todayD=parse(TODAY);
+  const wkSince=Math.floor((todayD-startD)/(7*86400000));
+  WEEKS=Math.max(12, wkSince+5)+(+store.settings.moreWeeks||0);
+  lastD=new Date(startD); lastD.setDate(lastD.getDate()+WEEKS*7-1);
+  LAST=iso(lastD);
+}
+recalcDates();
 function dayNo(s){ return Math.floor((parse(s)-startD)/86400000)+1; }
 function sessOf(s){ return SESS[ROT[parse(s).getDay()]]; }
 function keyOf(s){ return ROT[parse(s).getDay()]; }
@@ -372,10 +450,8 @@ function extraHTML(s){
 }
 
 /* ================= calendar ================= */
-const WEEKS=12;
-const lastD=new Date(startD); lastD.setDate(lastD.getDate()+WEEKS*7-1);
-const LAST=iso(lastD);
 function renderCal(){
+  document.getElementById('calTitle').textContent=WEEKS+'주 달력';
   const first=new Date(startD); first.setDate(first.getDate()-((startD.getDay()+6)%7));
   let html='';
   for(let w=0;w<WEEKS+1;w++){
@@ -401,8 +477,24 @@ function renderCal(){
     html+=`<div class="wkrow"><div class="wklab">${lab}</div>${cells}</div>`;
   }
   document.getElementById('cal').innerHTML=html;
+  const mb=document.getElementById('moreWeeks');
+  if(mb) mb.textContent='＋4주 더 보기 (현재 '+WEEKS+'주)';
   document.querySelectorAll('.cell[data-d]').forEach(c=>c.addEventListener('click',()=>{ sel=c.dataset.d; renderAll(); window.scrollTo({top:0,behavior:'smooth'}); }));
 }
+
+/* ============ 날짜가 바뀌면 자동 갱신 ============ */
+function refreshIfDayChanged(){
+  if(nowISO()===TODAY) return false;
+  const wasToday=(sel===TODAY);
+  recalcDates();
+  if(wasToday) sel=TODAY;
+  renderAll();
+  return true;
+}
+document.addEventListener('visibilitychange',()=>{ if(!document.hidden) refreshIfDayChanged(); });
+window.addEventListener('focus',refreshIfDayChanged);
+window.addEventListener('pageshow',refreshIfDayChanged);
+setInterval(refreshIfDayChanged,60000);
 
 /* ================= stats ================= */
 function renderStats(){
@@ -414,7 +506,7 @@ function renderStats(){
   let wk=0;
   for(let i=0;i<7;i++){ const d=new Date(mon); d.setDate(d.getDate()+i); const s=iso(d);
     if(s<START) continue; const k=keyOf(s); if(k==='A'||k==='B'||k==='C'){ if(isDone(s)) wk++; } }
-  document.getElementById('kWeek').innerHTML=wk+'<small>/5</small>';
+  document.getElementById('kWeek').innerHTML=wk+'<small>/'+goal()+'</small>';
 
   let streak=0, cur=new Date(todayD);
   while(iso(cur)>=START){
@@ -433,7 +525,31 @@ function renderStats(){
 }
 
 /* ================= backup ================= */
-function syncBackup(){ document.getElementById('bkText').value=JSON.stringify(store); }
+function syncBackup(){ const t=document.getElementById('bkText'); if(t) t.value=JSON.stringify(store); }
+function bkMsg(s,ok){ const m=document.getElementById('bkMsg'); if(!m) return;
+  m.textContent=s; m.style.color=ok===false?'#E29A9A':'var(--ok)'; setTimeout(()=>{m.textContent='';},2600); }
+document.getElementById('bkSave').addEventListener('click',()=>{
+  try{
+    const blob=new Blob([JSON.stringify(store,null,2)],{type:'application/json'});
+    const url=URL.createObjectURL(blob), a=document.createElement('a');
+    a.href=url; a.download='hometraining-backup-'+TODAY+'.json';
+    document.body.appendChild(a); a.click();
+    setTimeout(()=>{ URL.revokeObjectURL(url); a.remove(); },1500);
+    bkMsg('저장했습니다 ✓');
+  }catch(e){ bkMsg('저장 실패 — 아래 코드 방식을 쓰세요',false); }
+});
+document.getElementById('bkOpen').addEventListener('click',()=>document.getElementById('bkFile').click());
+document.getElementById('bkFile').addEventListener('change',async e=>{
+  const f=e.target.files&&e.target.files[0]; if(!f) return;
+  try{
+    const o=JSON.parse(await f.text());
+    if(!o||typeof o!=='object') throw 0;
+    store={done:o.done||{}, extra:o.extra||{}, settings:o.settings||{}};
+    persist(); recalcDates(); fillSettings(); renderAll();
+    bkMsg('불러왔습니다 ✓');
+  }catch(err){ bkMsg('파일을 읽을 수 없어요',false); }
+  e.target.value='';
+});
 document.getElementById('bkCopy').addEventListener('click',async e=>{
   const t=document.getElementById('bkText'); t.select(); t.setSelectionRange(0,99999);
   let ok=false; try{ await navigator.clipboard.writeText(t.value); ok=true; }catch(err){ try{ ok=document.execCommand('copy'); }catch(e2){} }
@@ -444,12 +560,12 @@ document.getElementById('bkLoad').addEventListener('click',()=>{
   const t=document.getElementById('bkText'); t.removeAttribute('readonly'); t.value=''; t.focus();
   t.placeholder='여기에 백업 코드를 붙여넣고 이 버튼을 다시 누르세요';
   const btn=document.getElementById('bkLoad'); btn.textContent='붙여넣었으면 여기 누르기';
-  btn.onclick=()=>{ try{ const o=JSON.parse(t.value); if(o&&typeof o==='object'){ store=o.done?o:{done:o}; if(!store.extra) store.extra={}; persist(); renderAll(); btn.textContent='복원 완료 ✓'; }
+  btn.onclick=()=>{ try{ const o=JSON.parse(t.value); if(o&&typeof o==='object'){ store=o.done?o:{done:o}; if(!store.extra) store.extra={}; if(!store.settings) store.settings={}; persist(); renderAll(); btn.textContent='복원 완료 ✓'; }
     }catch(e){ btn.textContent='코드 형식이 올바르지 않아요'; }
     setTimeout(()=>{ t.setAttribute('readonly',''); btn.textContent='코드 붙여넣어 복원'; btn.onclick=null; location.reload(); },1400); };
 });
 document.getElementById('bkReset').addEventListener('click',e=>{
-  if(e.target.dataset.c){ store={done:{},extra:{}}; persist(); renderAll(); e.target.textContent='전체 초기화'; delete e.target.dataset.c; return; }
+  if(e.target.dataset.c){ store={done:{},extra:{},settings:store.settings||{}}; persist(); renderAll(); e.target.textContent='전체 초기화'; delete e.target.dataset.c; return; }
   e.target.dataset.c='1'; e.target.textContent='정말 지울까요? 한 번 더';
   setTimeout(()=>{ if(e.target.dataset.c){ e.target.textContent='전체 초기화'; delete e.target.dataset.c; } },3500);
 });
@@ -494,8 +610,87 @@ function tick(){
   paint();
 }
 
+/* ================= 주간 추이 ================= */
+function weekStats(){
+  const rows=[], g=goal();
+  for(let w=0; w<WEEKS; w++){
+    const a=new Date(startD); a.setDate(a.getDate()+w*7);
+    let done=0, workdays=0, past=false;
+    for(let i=0;i<7;i++){
+      const d=new Date(a); d.setDate(d.getDate()+i); const s=iso(d);
+      const k=ROT[d.getDay()];
+      if(k==='A'||k==='B'||k==='C'){ workdays++; if(isDone(s)) done++; }
+      if(s<=TODAY) past=true;
+    }
+    rows.push({w:w+1, done, workdays, start:iso(a), past, cur:(iso(a)<=TODAY && TODAY<=iso(new Date(a.getFullYear(),a.getMonth(),a.getDate()+6)))});
+  }
+  return rows;
+}
+function renderTrend(){
+  const el=document.getElementById('trend'); if(!el) return;
+  const rows=weekStats(), g=goal();
+  const cap=Math.max(g, ...rows.map(r=>r.done));
+  const H=104, base=16;
+  el.innerHTML=`<div class="goal" style="bottom:${(g/cap)*(H-24)+16}px"><span>목표 ${g}회</span></div>`
+    + rows.map(r=>{
+      const hgt=Math.round((r.done/cap)*(H-24));
+      const cls=r.cur?'cur':(r.past?'':'future');
+      return `<div class="tw ${cls}" title="${r.w}주차 · ${r.done}/${r.workdays}회">
+        <div class="tv">${r.past?r.done:''}</div>
+        <div class="tb" style="height:${Math.max(3,hgt)}px"></div>
+        <div class="tl">${r.w}</div></div>`;
+    }).join('');
+}
+
+/* ================= 설정 ================= */
+function fillSettings(){
+  const a=document.getElementById('setStart'), b=document.getElementById('setGoal'), c=document.getElementById('setWeight');
+  if(a) a.value=START;
+  if(b) b.value=goal();
+  if(c) c.value=store.settings.weight||'';
+}
+function bindSettings(){
+  const a=document.getElementById('setStart'), b=document.getElementById('setGoal'), c=document.getElementById('setWeight');
+  a.addEventListener('change',()=>{
+    if(!a.value) return;
+    store.settings.start=a.value; store.settings.moreWeeks=0;
+    persist(); recalcDates();
+    if(sel<START) sel=(TODAY>=START)?TODAY:START;
+    renderAll();
+  });
+  b.addEventListener('change',()=>{ store.settings.weeklyGoal=Math.max(1,Math.min(7,+b.value||5)); b.value=goal(); persist(); renderAll(); });
+  c.addEventListener('change',()=>{
+    const v=parseFloat(c.value);
+    if(v>=30&&v<=150){ store.settings.weight=v; try{ localStorage.setItem('ht-weight',String(v)); }catch(e){} }
+    else { delete store.settings.weight; try{ localStorage.removeItem('ht-weight'); }catch(e){} c.value=''; }
+    persist();
+  });
+}
+document.getElementById('moreWeeks').addEventListener('click',()=>{
+  store.settings.moreWeeks=(+store.settings.moreWeeks||0)+4;
+  persist(); recalcDates(); renderAll();
+});
+
+/* ============ 12주 완주 안내 ============ */
+function renderGraduate(){
+  const el=document.getElementById('graduate'); if(!el) return;
+  const dn=dayNo(TODAY);
+  if(dn<=84){ el.innerHTML=''; return; }
+  const rows=weekStats().filter(r=>r.past);
+  const total=rows.reduce((s,r)=>s+r.done,0);
+  el.innerHTML=`<div class="grad">
+    <h3>12주 완주 — 지금까지 ${total}회</h3>
+    <p>${dn}일차입니다. 여기서부터는 같은 루틴을 반복하기보다 한 번 점검하고 넘어가는 게 좋아요.</p>
+    <ul>
+      <li><b>다시 재보기</b> — 푸시업 최대 몇 개, 플랭크 몇 초, 싱글레그 힙 브리지 몇 회. 3개월 전과 비교해보세요.</li>
+      <li><b>강도 올리기</b> — 늘었다면 순서대로: 한 다리·한 팔로 바꾸기 → 정지 시간 늘리기 → 내리는 속도 늦추기 → 그다음이 무게입니다.</li>
+      <li><b>안 늘었다면</b> — 대개 강도가 아니라 <b>빈도</b> 문제예요. 위 추이 그래프에서 목표선에 못 미친 주가 몇 주인지 세어보세요.</li>
+      <li><b>새로 시작하려면</b> — 아래 설정에서 시작일을 오늘로 바꾸면 1일차부터 다시 셉니다. 지난 기록은 그대로 남아요.</li>
+    </ul></div>`;
+}
+
 /* ================= boot ================= */
-function renderAll(){ renderDay(); renderCal(); renderStats(); }
+function renderAll(){ renderDay(); renderCal(); renderStats(); renderTrend(); renderGraduate(); }
 if(!storageOK) document.getElementById('warn').style.display='block';
 const OVGAP={1:'하체를 썼으니 상체·모빌리티',2:'상체를 밀었으니 하체 유연성·목',3:'근력 부하가 없는 날 → 심부 코어',4:'A에 없는 힙힌지·균형',5:'미는 운동이 많으니 뒤쪽 보강',6:'걷기만으론 엉덩이 자극이 약함',0:'회복. 안 해도 됨'};
 document.querySelector('#ovTable tbody').innerHTML=[1,2,3,4,5,6,0].map(d=>{
@@ -504,7 +699,7 @@ document.querySelector('#ovTable tbody').innerHTML=[1,2,3,4,5,6,0].map(d=>{
     <td style="color:var(--muted)">${OVGAP[d]}</td>
     <td class="x">${E.items.map(x=>`${x.n} <em>${x.s}</em>`).join('')}</td></tr>`;
 }).join('');
-syncBackup(); renderAll();
+syncBackup(); fillSettings(); bindSettings(); renderAll();
 </script>
 </body>
 </html>
