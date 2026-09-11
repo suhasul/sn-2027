@@ -7,12 +7,16 @@
 <style>
   :root{
     color-scheme:dark;
-    --bg:#131311; --card:#1B1B18; --ink:#F2F0EB; --muted:#A29C92; --faint:#7A746B;
+    --bg:#131311; --card:#1B1B18; --ink:#F2F0EB; --muted:#A29C92; --faint:#9A948A;
     --line:#2F2E2A; --accent:#F0834F; --ok:#5FCE86; --warn:#E5A05A; --no:#F08080;
     --surface-1:#1B1B18; --text-primary:#F2F0EB; --text-secondary:#B8B2A8;
     --series-1:#3987e5; --series-2:#d95926; --grid:#2F2E2A; --chipbg:#262521; --chipink:#B8B2A8;
   }
-  html,body{background:var(--bg)}
+  html,body{background:var(--bg);overscroll-behavior:none}
+  :focus-visible{outline:2px solid var(--ink);outline-offset:2px}
+  .sr{position:absolute;width:1px;height:1px;padding:0;margin:-1px;overflow:hidden;clip:rect(0 0 0 0);white-space:nowrap;border:0}
+  @media (prefers-reduced-motion:reduce){*{transition:none!important;animation:none!important}}
+  button,summary,input[type=number],input[type=date],input[type=text]{min-height:44px}
   *{box-sizing:border-box}
   body{margin:0;background:var(--bg);color:var(--ink);line-height:1.62;-webkit-font-smoothing:antialiased;
     font-family:"Pretendard","Pretendard Variable",-apple-system,BlinkMacSystemFont,"Apple SD Gothic Neo","Malgun Gothic","Noto Sans KR",sans-serif;}
@@ -140,7 +144,7 @@
   <div class="card">
     <div class="calcrow">
       <label for="w">체중</label>
-      <input type="number" id="w" value="54" min="35" max="120" step="0.5"> <span style="color:var(--muted);font-size:14px">kg</span>
+      <input type="number" id="w" value="54" min="30" max="150" step="0.5"> <span style="color:var(--muted);font-size:14px">kg</span>
       <span style="font-size:12.5px;color:var(--faint)">· 근력운동 주 4회 기준 (1.4~1.6 g/kg)</span>
     </div>
     <div class="kpi">
@@ -317,7 +321,7 @@ rows.forEach((r,i)=>{
 });
 const last=rows[rows.length-1], lcx=ML+gw*(rows.length-1)+gw/2;
 s+=`<text class="dlab" x="${lcx-bw/2-gap/2}" y="${y(last.pp)-8}" text-anchor="middle">${last.pp}%</text>`;
-s+=`<text class="dlab" x="${lcx+bw/2+gap/2}" y="${y(last.fp)-8}" text-anchor="middle" fill="var(--series-2)">${last.fp}%</text>`;
+s+=`<text class="dlab" x="${lcx+bw/2+gap/2}" y="${y(last.fp)-8}" text-anchor="middle" fill="#E9683A">${last.fp}%</text>`;
 document.getElementById('chart').innerHTML=s;
 
 /* tooltip */
@@ -340,6 +344,7 @@ document.querySelectorAll('.bar').forEach(b=>{
   b.addEventListener('mouseenter',show);
   b.addEventListener('mousemove',show);
   b.addEventListener('mouseleave',()=>tip.style.opacity='0');
+  b.addEventListener('pointerdown',e=>{ show(e); clearTimeout(b.__t); b.__t=setTimeout(()=>tip.style.opacity='0',2600); });
 });
 
 /* ---------- calculator ---------- */
@@ -358,9 +363,18 @@ function calc(){
   $('k4').textContent=(F100*g/100).toFixed(1)+' g';
 }
 $('w').addEventListener('input',calc);
-$('w').addEventListener('change',()=>{ try{ localStorage.setItem('ht-weight',String(parseFloat($('w').value)||54)); }catch(e){} });
+$('w').addEventListener('change',()=>{
+  const raw=$('w').value.trim();
+  if(raw===''){ $('w').value=readW(); calc(); return; }          /* 빈칸이면 되돌림 — 54로 덮어쓰지 않음 */
+  const n=parseFloat(raw);
+  if(!(n>=30&&n<=150)){ $('w').value=readW(); calc(); return; }
+  try{ localStorage.setItem('ht-weight',String(n)); }catch(e){}
+});
+/* 체크표 설정에서 체중을 바꾸면 여기도 따라옴 */
+window.addEventListener('storage',e=>{ if(e.key!=='ht-weight') return; $('w').value=readW(); calc(); });
 /* 체크표 설정에 체중을 저장했으면 그 값으로 시작 */
-try{ const w=parseFloat(localStorage.getItem('ht-weight')); if(w>=30&&w<=150) $('w').value=w; }catch(e){}
+function readW(){ try{ const w=parseFloat(localStorage.getItem('ht-weight')); if(w>=30&&w<=150) return w; }catch(e){} return 54; }
+$('w').value=readW();
 calc();
 </script>
 </body>
