@@ -1,5 +1,5 @@
 /* 홈트 앱 서비스 워커 — 홈 화면 설치와 빠른 재실행을 위한 캐시 */
-const VERSION = 'homefit-v5';
+const VERSION = 'homefit-v6';
 
 /* 이 파일들은 하나라도 못 받으면 설치를 실패로 처리 — 반쪽짜리 캐시로 갈아타지 않도록 */
 const SHELL = [

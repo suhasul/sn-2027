@@ -210,6 +210,14 @@
   .note{background:var(--card);border-left:3px solid var(--warn);border-radius:0 10px 10px 0;padding:11px 13px;font-size:13px;margin-top:12px;color:var(--muted)}
   .note b{color:var(--warn)}
   #warn{display:none}
+  .vnote{display:none;margin-top:5px;color:var(--warn);font-weight:650;line-height:1.45}
+  #micDot{position:fixed;right:10px;top:calc(9px + env(safe-area-inset-top));z-index:70;
+    display:flex;align-items:center;gap:7px;background:rgba(19,19,17,.94);border:1px solid #767066;
+    border-radius:99px;padding:6px 12px 6px 10px;font-size:11.5px;font-weight:700;color:var(--muted);
+    box-shadow:0 2px 14px rgba(0,0,0,.55)}
+  #micDot[hidden]{display:none}
+  #micDot i{width:8px;height:8px;border-radius:50%;background:var(--C);animation:mpulse 1.3s ease-in-out infinite;flex:none}
+  @keyframes mpulse{0%,100%{opacity:1}50%{opacity:.3}}
   #nudge{background:var(--card);border-left:3px solid var(--warn);border-radius:0 10px 10px 0;padding:12px 14px;
     font-size:13px;margin:16px 0 0;color:var(--muted);display:flex;align-items:center;gap:10px;flex-wrap:wrap}
   #nudge[hidden]{display:none}
@@ -237,6 +245,7 @@
 </header>
 
 <div class="sr" id="sr" role="status" aria-live="polite"></div>
+<div id="micDot" hidden aria-hidden="true"><i></i>듣는 중</div>
 <div id="nudge" hidden></div>
 
 <section>
@@ -301,6 +310,16 @@
       <label for="setVib">진동 알림</label>
       <input type="checkbox" id="setVib" style="width:auto;transform:scale(1.35);margin-left:4px">
       <span class="hint">세트·휴식이 끝날 때 진동합니다. 소리(비프음)는 진동과 별개로 항상 함께 울려요 — 이어폰을 끼고 있으면 소리가 더 확실합니다.</span>
+    </div>
+    <div class="setrow">
+      <label for="setTts">음성 안내</label>
+      <input type="checkbox" id="setTts">
+      <span class="hint">다음 세트·휴식·다음 동작을 <b>소리로 읽어줍니다.</b> 화면을 안 보고 운동할 수 있어요. 폰에 내장된 한국어 음성을 씁니다.<b class="vnote" id="ttsNote"></b></span>
+    </div>
+    <div class="setrow">
+      <label for="setCmd">음성 명령</label>
+      <input type="checkbox" id="setCmd">
+      <span class="hint">「완료」「되돌려」「건너뛰기」「얼마 남았어」라고 말하면 손 안 대고 기록됩니다. 마이크를 계속 열어두니 배터리를 조금 더 쓰고, 인터넷이 필요해요.<b class="vnote" id="cmdNote"></b></span>
     </div>
     <div class="setrow">
       <label for="setWeight">체중 (kg)</label>
@@ -471,8 +490,181 @@ function setsOf(s,i){ const m=store.sets[s]||{}; return +m[i]||0; }
 function restSec(){ return Math.max(10, Math.min(180, +store.settings.restSec||45)); }
 function vibOn(){ return store.settings.vibrate!==false; }
 function vib(p){ if(!vibOn()) return; try{ navigator.vibrate && navigator.vibrate(p); }catch(e){} }
-/* 스크린리더 안내 */
-function say(t){ const e=document.getElementById('sr'); if(!e) return; e.textContent=''; setTimeout(()=>{ e.textContent=t; },40); }
+/* 화면 안내와 소리로 읽어주는 내용을 하나로 — quiet면 화면(스크린리더)에만 */
+function say(t, quiet){
+  const e=document.getElementById('sr');
+  if(e){ e.textContent=''; setTimeout(()=>{ e.textContent=t; },40); }
+  if(!quiet) speakNow(t);
+}
+
+/* ================= 음성 안내 (TTS) ================= */
+const TTS = !!(window.speechSynthesis && window.SpeechSynthesisUtterance);   /* in 연산자는 값이 비어 있어도 참이라 실제 값으로 판단 */
+const SRC = window.SpeechRecognition || window.webkitSpeechRecognition || null;
+function ttsOn(){ return store.settings.tts===true; }
+function cmdOn(){ return store.settings.voiceCmd===true; }
+
+/* 안드로이드는 ko_KR 처럼 밑줄로 주기도 해서 정규화 */
+const normLang = l => String(l||'').replace(/_/g,'-');
+let koVoice=null, voicesLoaded=false;
+function pickVoice(){
+  if(!TTS) return;
+  let vs=[]; try{ vs=speechSynthesis.getVoices()||[]; }catch(e){}
+  if(!vs.length) return;                 /* 첫 호출이 비어 있는 건 정상 — voiceschanged 를 기다림 */
+  voicesLoaded=true;
+  koVoice = vs.find(v=>normLang(v.lang).toLowerCase().indexOf('ko')===0) || null;
+  updateVoiceNote();
+}
+if(TTS){ pickVoice(); try{ speechSynthesis.addEventListener('voiceschanged', pickVoice); }catch(e){} }
+
+/* 재생 도중 수거되면 말이 끊기므로 참조를 붙들어 둠 */
+const ttsKeep=[];
+let speaking=0, ttsGuard=null;
+function speakNow(text){
+  if(!TTS || !ttsOn() || !text) return;
+  try{
+    speechSynthesis.cancel();            /* 운동 중엔 가장 최근 안내만 의미가 있음 */
+    /* 안드로이드는 onend 가 안 오는 경우가 있어 마이크가 영영 꺼진 채로 남지 않도록 */
+    clearTimeout(ttsGuard);
+    ttsGuard=setTimeout(()=>{ speaking=0; ttsKeep.length=0; srMute(false); }, 12000);
+    const u=new SpeechSynthesisUtterance(String(text).replace(/[·—]/g,',').slice(0,110));
+    if(koVoice){ u.voice=koVoice; u.lang=normLang(koVoice.lang); }
+    else u.lang='ko-KR';                 /* lang 을 안 주면 안드로이드가 엉뚱한 언어로 읽음 */
+    u.rate=1.05; u.pitch=1; u.volume=1;
+    let done=false;
+    const fin=()=>{ if(done) return; done=true;
+      speaking=Math.max(0,speaking-1);
+      const q=ttsKeep.indexOf(u); if(q>=0) ttsKeep.splice(q,1);
+      if(!speaking) srMute(false); };
+    u.onend=fin; u.onerror=fin;
+    ttsKeep.push(u); if(ttsKeep.length>6) ttsKeep.shift();
+    /* 말하기 직전에 마이크를 끊음 — 안 그러면 자기 목소리의 「완료」를 명령으로 알아듣습니다 */
+    speaking++; srMute(true);
+    try{ speechSynthesis.speak(u); }
+    catch(err){ fin(); }                 /* 재생을 시작조차 못 하면 즉시 원상복구 */
+  }catch(e){}
+}
+
+/* ================= 음성 명령 ================= */
+let rec=null, recTimer=null, recStart=0, recFails=0, armedVoice=false;
+let mSpeak=false, mHidden=false;
+function micDot(on){ const d=document.getElementById('micDot'); if(d) d.hidden=!on; }
+function srWant(){ return !!SRC && cmdOn() && armedVoice && !mSpeak && !mHidden && !document.hidden; }
+function srSync(){
+  if(srWant()){ if(!rec){ clearTimeout(recTimer); recTimer=setTimeout(srStart,600); } }   /* 말끝 여운이 사라진 뒤 다시 듣기 */
+  else { clearTimeout(recTimer); try{ if(rec) rec.abort(); }catch(e){} rec=null; micDot(false); }
+}
+function srMute(on){ mSpeak=on; srSync(); }
+function srStart(){
+  if(!srWant() || rec) return;
+  try{
+    const r=new SRC();
+    r.lang='ko-KR'; r.continuous=true; r.interimResults=false; r.maxAlternatives=3;
+    r.onstart=()=>{ recStart=Date.now(); micDot(true); };
+    r.onresult=e=>{
+      for(let i=e.resultIndex;i<e.results.length;i++){
+        const res=e.results[i]; if(!res.isFinal) continue;
+        for(let a=0;a<res.length;a++){ if(runCmd(res[a].transcript)) break; }
+      }
+    };
+    r.onerror=ev=>{
+      const err=ev&&ev.error;
+      if(err==='not-allowed'||err==='service-not-allowed'){
+        store.settings.voiceCmd=false; persist(); fillSettings(); rec=null; micDot(false);
+        say('마이크를 쓸 수 없어 음성 명령을 껐습니다');
+      }
+    };
+    r.onend=()=>{
+      rec=null; micDot(false);
+      const quick = Date.now()-recStart < 900;
+      recFails = quick ? recFails+1 : 0;
+      if(recFails>4){                    /* 계속 바로 끊기면 조용히 포기 */
+        recFails=0; store.settings.voiceCmd=false; persist(); fillSettings();
+        say('음성 명령을 시작할 수 없어 껐습니다'); return;
+      }
+      clearTimeout(recTimer); recTimer=setTimeout(srSync, quick?1600:350);
+    };
+    rec=r; r.start();
+  }catch(e){ rec=null; }
+}
+function srStop(){ clearTimeout(recTimer); try{ if(rec) rec.abort(); }catch(e){} rec=null; micDot(false); }
+
+let lastTouched=-1, cmdAt=0;
+function gotOf(i){ return checked(sel).includes(i)?totSets(sel,i):setsOf(sel,i); }
+function firstPending(){
+  const it=itemsOf(sel);
+  for(let i=0;i<it.length;i++){ if(gotOf(i)<totSets(sel,i)) return i; }
+  return -1;
+}
+function runCmd(raw){
+  const t=String(raw||'').replace(/\s+/g,'');
+  if(!t) return false;
+  const now=Date.now();
+  if(now-cmdAt<800) return false;        /* 같은 말이 두 번 잡히는 것 방지 */
+  const has=(...ws)=>ws.some(w=>t.indexOf(w)>=0);
+  if(has('완료','했어','했다','오케이','오키','다음세트','넘어가')){ cmdAt=now; return cmdNext(); }
+  if(has('취소','되돌','잘못','빼줘','아니야')){ cmdAt=now; return cmdUndo(); }
+  if(has('건너','스킵','넘겨')){ cmdAt=now;
+    if(rest.id){ endRest(false); say('휴식 건너뜀'); return true; } return false; }
+  if(has('추가','십오초','15초','더줘')){ cmdAt=now;
+    if(rest.id){ rest.endsAt+=15000; restTick(); say('15초 추가'); return true; } return false; }
+  if(has('얼마','남았','시간')){ cmdAt=now; return cmdTime(); }
+  if(has('뭐야','뭐지','무슨','뭐하')){ cmdAt=now;
+    const i=firstPending();
+    say(i>=0 ? itemsOf(sel)[i].n+', '+(gotOf(i)+1)+'세트' : '남은 종목이 없습니다'); return true; }
+  return false;
+}
+function cmdNext(){
+  if(sessOf(sel).rest){ say('오늘은 쉬는 날입니다'); return true; }
+  const i = (rest.next>=0) ? rest.next : firstPending();
+  if(i<0){ say('오늘 운동은 이미 다 했습니다'); return true; }
+  const N=totSets(sel,i), cur=gotOf(i);
+  if(cur>=N){ say('이미 끝낸 종목입니다'); return true; }
+  applySets(i, cur+1, true, null);
+  return true;
+}
+function cmdUndo(){
+  let i=lastTouched;
+  if(i<0 || i>=itemsOf(sel).length || gotOf(i)<=0){
+    i=-1; const it=itemsOf(sel);
+    for(let k=it.length-1;k>=0;k--){ if(gotOf(k)>0){ i=k; break; } }
+  }
+  if(i<0){ say('되돌릴 기록이 없습니다'); return true; }
+  applySets(i, gotOf(i)-1, false, null);
+  return true;
+}
+function cmdTime(){
+  if(rest.id){
+    const left=Math.max(0,Math.ceil((rest.endsAt-Date.now())/1000));
+    say('휴식 '+left+'초 남았습니다'); return true;
+  }
+  if(sessOf(sel).rest){ say('오늘은 쉬는 날입니다'); return true; }
+  const i=firstPending();
+  if(i<0){ say('오늘 운동 완료입니다'); return true; }
+  say(itemsOf(sel)[i].n+', '+(gotOf(i)+1)+'세트 차례입니다'); return true;
+}
+function updateVoiceNote(){
+  const a=document.getElementById('ttsNote'), b=document.getElementById('cmdNote');
+  if(a){
+    a.textContent = !TTS ? '이 브라우저는 음성 안내를 지원하지 않습니다.'
+      : (voicesLoaded && !koVoice) ? '폰에 한국어 음성이 없습니다 — 설정 → 일반 → 음성 합성(TTS)에서 한국어를 받아주세요. 그 전까지는 다른 언어 억양으로 읽습니다.'
+      : '';
+    a.style.display = a.textContent ? 'block' : 'none';
+  }
+  if(b){
+    b.textContent = !SRC ? '이 브라우저는 음성 명령을 지원하지 않습니다 (크롬 최신 버전이 필요해요).' : '';
+    b.style.display = b.textContent ? 'block' : 'none';
+  }
+}
+/* 화면을 떠나면 안드로이드가 재생을 멈추면서 상태가 어긋나므로 정리 */
+document.addEventListener('visibilitychange',()=>{
+  mHidden=document.hidden;
+  if(document.hidden && TTS){ try{ speechSynthesis.cancel(); }catch(e){} speaking=0; ttsKeep.length=0; }
+  srSync();
+});
+/* 소리·마이크는 화면을 처음 누른 뒤에야 쓸 수 있음 */
+function armVoice(){ if(armedVoice) return; armedVoice=true; srSync(); }
+document.addEventListener('pointerdown',armVoice,true);
+document.addEventListener('keydown',armVoice,true);
 /* 소리: 크롬은 \'화면을 누르는 순간\'에 깨운 오디오만 재생을 허용함 */
 function armAudio(){
   try{
@@ -641,7 +833,9 @@ function renderDay(){
     else{
       store.done[sel]=it.map((_,i)=>i);
       const m={}; it.forEach((_,i)=>{ m[i]=totSets(sel,i); }); store.sets[sel]=m;
-      touchTime(sel); endRest(false); say('전부 완료');
+      touchTime(sel); endRest(false);
+      const mm=minutesOf(sel);
+      say('오늘 운동 전부 완료. 수고하셨어요.'+(mm>=2?' 소요 '+mm+'분.':''));
     }
     persist(); renderAll('#allBtn');
   });
@@ -663,12 +857,21 @@ function applySets(i,next,adding,focus){
   if(adding) touchTime(sel); else pruneTime(sel);
   persist();
   const nm=itemsOf(sel)[i].n;
+  lastTouched=i;
   if(adding){
     vib(140);
-    say(nm+' '+next+'세트 완료'+(next>=N?', 종목 끝':''));
-    if(next<N || !isDone(sel)) startRest(nextLabel(i,next,N), i, next, N);
+    if(next>=N && isDone(sel)){
+      const mins=minutesOf(sel);
+      say('오늘 운동 완료. 수고하셨어요.'+(mins>=2?' 소요 '+mins+'분.':''));
+    }else{
+      const t=nextTarget(i,next,N), today=(sel===TODAY);
+      startRest(t.label, i, next, N, true);          /* 안내는 여기서 한 번만 */
+      say(!today ? (nm+' '+next+'세트 기록')          /* 지난 날짜엔 휴식 얘기를 하지 않음 */
+        : next>=N ? (nm+' 끝. '+restSec()+'초 쉬고, 다음은 '+t.label+'.')
+                  : (nm+' '+next+'세트 완료. '+restSec()+'초 휴식.'));
+    }
   }else{
-    say(nm+' '+next+' 나누기 '+N+'세트로 되돌림');
+    say(next<=0 ? (nm+' 취소했습니다') : (nm+' '+next+'세트로 되돌렸습니다'));
   }
   renderAll(focus);
 }
@@ -884,7 +1087,7 @@ function initTimer(){
     if(tId){clearInterval(tId);tId=null;e.target.textContent='시작';if(!rest.id)wakeOff();say('타이머 일시정지');return;}
     if(tR>3){tI=0;tR=1;tP='work';}
     phase(tL>0?tL:30);
-    tId=setInterval(tick,250); e.target.textContent='일시정지'; wakeOn(); say('타이머 시작 · '+CIR[tI]);
+    tId=setInterval(tick,250); e.target.textContent='일시정지'; wakeOn(); say('시작. '+CIR[tI]+', 30초.');
   });
   document.getElementById('tReset').addEventListener('click',()=>{
     if(tId){clearInterval(tId);tId=null;const b=document.getElementById('tStart'); if(b)b.textContent='시작';}
@@ -912,24 +1115,24 @@ function tick(){
     tL=0;
     if(tP==='work'){
       tP='rest'; tEnd+=15000; tL=15;
-      if(tEnd>Date.now()){ beep(660,.15); vib(130); say('휴식 15초'); }
+      if(tEnd>Date.now()){ beep(660,.15); vib(130); say('휴식 15초. 다음은 '+CIR[(tI+1)%CIR.length]+'.'); }
     }else{
       tI++; if(tI>=CIR.length){ tI=0; tR++; }
       if(tR>3){
         clearInterval(tId); tId=null; tL=0; beep(880,.45); vib([250,120,250]);
         if(!rest.id) wakeOff();
         const b=document.getElementById('tStart'); if(b)b.textContent='시작';
-        paint(); say('서킷 완료'); return;
+        paint(); say('서킷 3라운드 완료. 수고하셨어요.'); return;
       }
       tP='work'; tEnd+=30000; tL=30;
-      if(tEnd>Date.now()){ beep(880,.15); vib(190); say(CIR[tI]); }
+      if(tEnd>Date.now()){ beep(880,.15); vib(190); say((tI===0?tR+'라운드. ':'')+CIR[tI]+', 30초.'); }
     }
   }
   paint();
 }
 
 /* ================= 세트 휴식 타이머 ================= */
-let rest={endsAt:0,id:null,label:'',next:-1};
+let rest={endsAt:0,id:null,label:'',next:-1,warned:false};
 function nextTarget(i,doneSets,N){
   const items=sessOf(sel).items;
   if(doneSets<N) return {i:i, label:items[i].n+' '+(doneSets+1)+'세트'};
@@ -937,11 +1140,12 @@ function nextTarget(i,doneSets,N){
   return {i:-1, label:'마무리'};
 }
 function nextLabel(i,doneSets,N){ return nextTarget(i,doneSets,N).label; }
-function startRest(label,i,doneSets,N){
+function startRest(label,i,doneSets,N,silent){
   if(sel!==TODAY) return;                       /* 지난 날짜를 채울 땐 타이머를 돌리지 않음 */
   const t = (i!=null) ? nextTarget(i,doneSets,N) : {i:-1,label:label};
   rest.label=t.label||label||'다음 세트';
   rest.next=t.i;
+  rest.warned=false;
   rest.endsAt=Date.now()+restSec()*1000;
   const bar=document.getElementById('restBar');
   document.getElementById('rbNext').textContent=rest.label;
@@ -956,7 +1160,7 @@ function startRest(label,i,doneSets,N){
     if(nx) nx.scrollIntoView({block:'center',behavior:matchMedia('(prefers-reduced-motion:reduce)').matches?'auto':'smooth'});
   }
   wakeOn();
-  say(rest.label+'까지 '+restSec()+'초 휴식');
+  say(rest.label+'까지 '+restSec()+'초 휴식', silent===true);
   if(rest.id) clearInterval(rest.id);
   rest.id=setInterval(restTick,250);
   restTick();
@@ -964,6 +1168,7 @@ function startRest(label,i,doneSets,N){
 function restTick(){
   const left=Math.max(0,Math.ceil((rest.endsAt-Date.now())/1000));
   const el=document.getElementById('rbSec'); if(el) el.textContent=left;
+  if(left<=10 && left>0 && !rest.warned && restSec()>18){ rest.warned=true; say('10초'); }
   if(left<=0) endRest(true);
 }
 function endRest(rang){
@@ -971,7 +1176,7 @@ function endRest(rang){
   const bar=document.getElementById('restBar'); if(bar) bar.hidden=true;
   document.body.style.paddingBottom='';
   rest.next=-1;
-  if(rang){ beep(760,.22); vib([220,110,220]); say('휴식 끝 — '+(rest.label||'다음 세트')); }
+  if(rang){ beep(760,.22); vib([220,110,220]); say('휴식 끝. '+(rest.label||'다음 세트')+', 시작.'); }
   if(!tId) wakeOff();
 }
 document.addEventListener('DOMContentLoaded',()=>{});
@@ -1029,6 +1234,10 @@ function fillSettings(){
   if(c) c.value=readWeight();
   if(r) r.value=restSec();
   if(v) v.checked=vibOn();
+  const tt=document.getElementById('setTts'), cc=document.getElementById('setCmd');
+  if(tt){ tt.checked=ttsOn(); tt.disabled=!TTS; }
+  if(cc){ cc.checked=cmdOn(); cc.disabled=!SRC; }
+  updateVoiceNote();
 }
 /* 다른 탭(식단)에서 체중을 바꾸면 여기도 따라옴 */
 window.addEventListener('storage',e=>{
@@ -1050,6 +1259,20 @@ function bindSettings(){
   const r=document.getElementById('setRest'), vv=document.getElementById('setVib');
   r.addEventListener('change',()=>{ store.settings.restSec=Math.max(10,Math.min(180,+r.value||45)); r.value=restSec(); persist(); });
   vv.addEventListener('change',()=>{ store.settings.vibrate=vv.checked; persist(); if(vv.checked){ vib(120); beep(760,.14); } });
+  const tt=document.getElementById('setTts'), cc=document.getElementById('setCmd');
+  tt.addEventListener('change',()=>{
+    store.settings.tts=tt.checked; persist();
+    if(tt.checked){ pickVoice(); speakNow('음성 안내를 켰습니다. 세트를 기록하면 다음 순서를 읽어드릴게요.'); }
+    else { try{ speechSynthesis.cancel(); }catch(e){} }
+    updateVoiceNote();
+  });
+  cc.addEventListener('change',()=>{
+    store.settings.voiceCmd=cc.checked; persist();
+    armedVoice=true;
+    if(cc.checked){ recFails=0; srSync(); say('음성 명령을 켰습니다. 완료, 되돌려, 건너뛰기 라고 말해보세요.'); }
+    else srStop();
+    updateVoiceNote();
+  });
   c.addEventListener('change',()=>{
     const raw=c.value.trim();
     if(raw===''){ delete store.settings.weight; try{ localStorage.removeItem('ht-weight'); }catch(e){} persist(); return; }
